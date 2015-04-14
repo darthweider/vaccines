@@ -1,14 +1,14 @@
 body { font-family: "ubuntu",sans-serif; font-style: normal; font-weight: 300; margin: 40px 50px 50px 50px; } 
 			h1 { font-family: "jaf-bernino-sans-condensed",sans-serif; font-style: normal; font-weight: 300; font-size: 1.8em; 
-				margin: 0; padding: 0; position: relative; color: /*red: #99000d*/ /* blue: #084594*/ black;}
+				margin: 0; padding: 0; position: relative; color: /*red: #99000d*/ /* blue: #91bfdb*/ black;}
 			h2 { font-weight: 400; font-style: normal; margin: 0 0 20px 0; padding: 0; position: relative; font-size: 1.2em; color: #999; }
-			h3 { padding: 50px 0 0 65px; margin: 0; color: #084594; text-transform: capitalize; clear: both;}
-			h4 { padding: 0 0 15px 0; margin: 0; font-weight: 600; font-size: 1.1em; color: #084594;}
+			h3 { padding: 50px 0 0 65px; margin: 0; color: #91bfdb; text-transform: capitalize; clear: both;}
+			h4 { padding: 0 0 15px 0; margin: 0; font-weight: 600; font-size: 1.1em; color: #91bfdb;}
 			.titleVariant { font-weight: 600; color: #555; }
 			.textSemi { font-weight: 600; }
 			.textBold { font-weight: 700; }
 			.textExtra { font-weight: 800; }
-			.meanStyle { font-weight: 600; color: #084594; font-size: 2.5em; line-height: .7em; }
+			.meanStyle { font-weight: 600; color: #91bfdb; font-size: 2.5em; line-height: .7em; }
 			.circle { float: left; width: 14px; height: 14px; -moz-border-radius: 7px; -webkit-border-radius: 7px;border-radius: 7px; margin-right: 7px; margin-top: 3px; }
 /**			
 sample code:
@@ -20,15 +20,15 @@ sample code:
 **/
 svg { border: /*1px solid*/ none; }
 			.mapLegendGradient {
-				height: 8px; width: 980px; display: inline-block;  margin-top: 6px;
-				background: #f7fbff; /* Old browsers */
-				background: -moz-linear-gradient(left,  #f7fbff 0%, #084594 100%); /* FF3.6+ */
-				background: -webkit-gradient(linear, left top, right top, color-stop(0%,#f7fbff), color-stop(100%,#084594)); /* Chrome,Safari4+ */
-				background: -webkit-linear-gradient(left,  #f7fbff 0%,#084594 100%); /* Chrome10+,Safari5.1+ */
-				background: -o-linear-gradient(left,  #f7fbff 0%,#084594 100%); /* Opera 11.10+ */
-				background: -ms-linear-gradient(left,  #f7fbff 0%,#084594 100%); /* IE10+ */
-				background: linear-gradient(to right,  #f7fbff 0%,#084594 100%); /* W3C */
-				filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f7fbff', endColorstr='#084594',GradientType=1 ); /* IE6-9 */
+				height: 8px; width: 700px; display: inline-block;  margin-top: 6px;
+				background: #fc8d59; /* Old browsers */
+				background: -moz-linear-gradient(left,  #fc8d59 0%, #91bfdb 100%); /* FF3.6+ */
+				background: -webkit-gradient(linear, left top, right top, color-stop(0%,#fc8d59), color-stop(100%,#91bfdb)); /* Chrome,Safari4+ */
+				background: -webkit-linear-gradient(left,  #fc8d59 0%,#91bfdb 100%); /* Chrome10+,Safari5.1+ */
+				background: -o-linear-gradient(left,  #fc8d59 0%,#91bfdb 100%); /* Opera 11.10+ */
+				background: -ms-linear-gradient(left,  #fc8d59 0%,#91bfdb 100%); /* IE10+ */
+				background: linear-gradient(to right,  #fc8d59 0%,#91bfdb 100%); /* W3C */
+				filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fc8d59', endColorstr='#91bfdb',GradientType=1 ); /* IE6-9 */
 			}
 			.axis path { fill: none; stroke: #777; }
 			.axis line { stroke: #777; }

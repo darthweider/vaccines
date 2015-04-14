@@ -7,7 +7,10 @@
         <!-- LOAD D3 LIBRARY -->
         <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
         <script src="http://d3js.org/topojson.v1.min.js"></script>
-                
+        <!--load auxillary scripts-->
+		<script src="./states.js"></script>
+		<script src="./clean.js"></script>
+
 		<title>U.S. Vaccination Rates</title>
 		
 	<link rel="stylesheet" type="text/css" href="style.css">
@@ -15,97 +18,106 @@
 	
 	
 <body>
+
+
+<div style="margin: 40px 0 0 50px; white-space: nowrap;">
+    <div class="mapContainer">
+    	<h4>Vaccination Across the U.S.</h4>
+        <div id="map"></div>              
+    </div>
+</div>
+<!-- MAP LEGEND -->
+<div style="clear: both; white-space: nowrap;">
+	<div style="display: inline-block; margin-right: 15px; font-weight: 600; font-size: .9em;">40%</div> 
+	<div class="mapLegendGradient"></div>
+    <div style="display: inline-block; margin-left: 15px; font-weight: 600; font-size: .9em;">100%</div>
+</div>
+
+
+
+
+
 <script>
+d3.csv("tab02_antigen_iap_reduced.csv", function(d) {
+	var overallData = cleanData(d);
 
-/** Removes non-ASCII characters from a string **/
-var trimNonAscii = function(str) {
-	return str.replace(/[^A-Za-z 0-9 \.,\?""!@#\$%\^&\(\+-:]*/g, '');
+d3.csv("tab10_wic_iap_reduced.csv", function(d) {
+	var wicData = cleanData(d);
+
+d3.csv("tab11_nowic_iap_reduced.csv", function(d) {
+	var noWicData = cleanData(d);
+
+
+
+var allRegionNames = d3.set();
+overallData.forEach(function (row) {
+	allRegionNames.add(row.Region);
+});
+
+console.log(overallData);
+
+/**returns a single number corresponding to the vaccination rate
+in the given region, year, and dataset for the given vaccine.
+Returns empty string '' if no data available or not found. **/
+var vaxRate = function(region, year, vaccine, dataset) {
+	var correctRow = dataset.filter(function(row) {
+		return row.Year == year && row.Region == region });
+	try
+		{ return correctRow[0][vaccine]; }
+	catch(err)
+		{ 	console.log('couldnt find vax rate for ' + region) 
+			return ''; }
 }
 
-/** Trim off non-ASCII characters from keys.**/
-var trimKeys = function(rows) {
-	return rows.map(function(row) {
-		for (var prop in row) {
-			var trimmed = trimNonAscii(prop);
-			if (trimmed != prop) {
-				row[trimmed] = row[prop];
-				delete row[prop];
+
+/*******CHOROPLETH*******/
+	var mapWidth = 2000,
+	    mapHeight = 500;
+		
+	var mapYear = 2013;
+	var mapVaccine = '4+DTaP';
+
+
+	var mapSvg = d3.select("#map")
+	.append("svg")
+    .attr("width", mapWidth)
+    .attr("height", mapHeight);
+
+	//color-scale
+	var colorScale = d3.scale.linear().domain([60, 95]).range(['#fc8d59', '#91bfdb']);
+
+	// albersUsa projection
+	var projection = d3.geo.albersUsa();
+	var path = d3.geo.path().projection(projection);
+	
+
+	d3.json("us-10m.json", function(error, shapes) {
+		states = topojson.feature(shapes, shapes.objects.states).features;	
+
+		var statePaths = mapSvg.append("g");
+
+		console.log(states);
+
+		statePaths.selectAll("path").data(states).enter()
+		.append("path").attr("d", path)
+		.attr("transform", "translate(-90, 0)")
+		.style("fill", function (state) {
+			var stateFips = state.id;
+			var stateName = findName(stateFips);
+
+			var stateVaxRate = vaxRate(stateName, mapYear, mapVaccine, overallData);
+			
+			if (stateVaxRate != '') {
+				return colorScale(stateVaxRate);
 			}
-		}
-		return row;
+				else { return "gray"; }
+		})
+		.style("stroke", "#fff");
+
 	})
-}
 
-/** Delete blank rows **/
-var trimExcessRows = function(rows) {
-	return rows.filter(function(row) {
-		return row['Region'] != '';
-	})
-}
-
-/** Given an array representing data from a .csv file, parse all data into float, if possible. 
-(i.e. leave all non-number strings like state name or phrase 'NA').
-Also trim non-ASCII characters from data (useful for removing asterisks from region names) **/
-var toFloatData = function(rows) {
-	return rows.map(function(row) {
-			//iterate over each property in a region that is its own property (i.e. not porperty of a prototype)
-			for (var prop in row) {
-				if (row.hasOwnProperty(prop)) {
-					var floated = parseFloat(row[prop]);
-					//if this doesn't parse to a NaN, then change it to the float
-					if (isNaN(floated)) {row[prop] = trimNonAscii(row[prop]); }
-					else { row[prop] = floated; }
-				};
-			};
-			return row; 
-			}) ;
-}
-
-var cleanData = function(data) {
-	return trimKeys(toFloatData(trimExcessRows(data)));
-}
-
-
-//2013 data, at or above poverty line
-var noPov13Data = [];
-var pov13Data = [];
-var a13Data = [];
-
-
-d3.csv("tab15_nopov_iap_2013.csv", function(d) {
-	noPov13Data = cleanData(d);
-//	console.log(noPov13Data);
-d3.csv("tab14_pov_iap_2013.csv", function(d) {
-	pov13Data = cleanData(d);
-//	console.log(pov13Data);
-
-d3.csv("tab02_antigen_iap_2013.csv", function(d) {
-	a13Data = cleanData(d);
-	console.log(a13Data);
-d3.csv("tab02_antigen_iap_2012.csv", function(d) {
-	a12Data = cleanData(d);
-	console.log(a12Data);
-d3.csv("tab02_antigen_iap_2011.csv", function(d) {
-	a11Data = cleanData(d);
-	console.log(a11Data);
-d3.csv("tab02_antigen_iap_2010.csv", function(d) {
-	a10Data = cleanData(d);
-d3.csv("tab02_antigen_iap_2009.csv", function(d) {
-	a09Data = cleanData(d);
-d3.csv("tab02_antigen_iap_2008.csv", function(d) {
-	a08Data = cleanData(d);
-d3.csv("tab02_antigen_iap_2007.csv", function(d) {
-	a07Data = cleanData(d);
-d3.csv("tab02_antigen_iap_2006.csv", function(d) {
-	a06Data = cleanData(d);
-d3.csv("tab02_antigen_iap_2005.csv", function(d) {
-	a05Data = cleanData(d);
-d3.csv("tab02_antigen_iap_2004.csv", function(d) {
-	a04Data = cleanData(d);
-d3.csv("tab02_antigen_iap_2003.csv", function(d) {
-	a03Data = cleanData(d);
-
-}) }) }) }) }) }) }) }) }) }) }) }) })
+	
+}) }) })
 
 
 </script>
