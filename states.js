@@ -63,6 +63,9 @@ var findFips = function(name) {
 }
 
 var findName = function(fips) {
+	//fips of 72 or 78 are asking abotu Peurto Rico and the Virgin Islands; ignore them
+	if (fips == 72 || fips == 78) { return ''; }
+
 	var name = '';
 	statesAbbr.forEach(function(state) {
 		if (state[3] == fips) {

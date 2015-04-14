@@ -23,9 +23,37 @@
 <div style="margin: 40px 0 0 50px; white-space: nowrap;">
     <div class="mapContainer">
     	<h4>Vaccination Across the U.S.</h4>
+		<button value='2003'>2003</button>	
+    	<button value='2004'>2004</button>
+		<button value='2005'>2005</button>	
+    	<button value='2006'>2006</button>
+		<button value='2007'>2007</button>	
+    	<button value='2008'>2008</button>
+		<button value='2009'>2009</button>	
+    	<button value='2010'>2010</button>
+		<button value='2011'>2011</button>	
+    	<button value='2012'>2012</button>
+		<button value='2013'>2013</button>	
+	    <select id="vaccine-dropdown" placeholder="4+DTaP">
+    	    <option value="4+DTaP">DTaP (diptheria, tetanus, and pertussis)</option>
+    	    <option value="3+Polio">Polio</option>
+    	    <option value="1+MMR">MMR (measles, mumps, and rubella)</option>
+    	    <option value="3+Hib">Hib (Haemophilus influenzae)</option>
+    	    <option value="3+HepB">Hepatitis B</option>
+    	    <option value="1+Var">Varicella (chickenpox)</option>
+    	    <option value="3+PCV">PCV (Streptococcus pneumonia)</option>
+    	    <option value="2+HepA">Hepatitis A</option> 
+    	    <option value="Rotavirus">Rotavirus</option>
+    	    <option value="4:3:1">DTaP + Polio + MMR</option> 
+    	    <option value="4:3:1:3:3:1">DTaP + Polio + MMR + Hib + HepB + Varicella</option>
+        </select>
         <div id="map"></div>              
     </div>
+
 </div>
+
+
+
 <!-- MAP LEGEND -->
 <div style="clear: both; white-space: nowrap;">
 	<div style="display: inline-block; margin-right: 15px; font-weight: 600; font-size: .9em;">40%</div> 
@@ -54,7 +82,7 @@ overallData.forEach(function (row) {
 	allRegionNames.add(row.Region);
 });
 
-console.log(overallData);
+//console.log(overallData);
 
 /**returns a single number corresponding to the vaccination rate
 in the given region, year, and dataset for the given vaccine.
@@ -65,18 +93,14 @@ var vaxRate = function(region, year, vaccine, dataset) {
 	try
 		{ return correctRow[0][vaccine]; }
 	catch(err)
-		{ 	console.log('couldnt find vax rate for ' + region) 
+		{ 	//console.log('couldnt find vax rate for ' + region) 
 			return ''; }
 }
 
 
 /*******CHOROPLETH*******/
-	var mapWidth = 2000,
-	    mapHeight = 500;
-		
-	var mapYear = 2013;
-	var mapVaccine = '4+DTaP';
-
+	var mapWidth = 1800,
+	    mapHeight = 600;
 
 	var mapSvg = d3.select("#map")
 	.append("svg")
@@ -84,28 +108,29 @@ var vaxRate = function(region, year, vaccine, dataset) {
     .attr("height", mapHeight);
 
 	//color-scale
-	var colorScale = d3.scale.linear().domain([60, 95]).range(['#fc8d59', '#91bfdb']);
+	var colorScale = d3.scale.linear().domain([40, 95]).range(['red', '#91bfdb']);
 
 	// albersUsa projection
 	var projection = d3.geo.albersUsa();
 	var path = d3.geo.path().projection(projection);
 	
 
-	d3.json("us-10m.json", function(error, shapes) {
-		states = topojson.feature(shapes, shapes.objects.states).features;	
 
+
+var drawMap = function(year, vaccine) {
+	d3.json("us-10m.json", function(error, shapes) {
+		var states = topojson.feature(shapes, shapes.objects.states).features;	
 		var statePaths = mapSvg.append("g");
 
-		console.log(states);
-
+		d3.selectAll("path.map").remove();
 		statePaths.selectAll("path").data(states).enter()
-		.append("path").attr("d", path)
+		.append("path").attr("d", path).attr("class", "map")
 		.attr("transform", "translate(-90, 0)")
 		.style("fill", function (state) {
 			var stateFips = state.id;
 			var stateName = findName(stateFips);
 
-			var stateVaxRate = vaxRate(stateName, mapYear, mapVaccine, overallData);
+			var stateVaxRate = vaxRate(stateName, year, vaccine, overallData);
 			
 			if (stateVaxRate != '') {
 				return colorScale(stateVaxRate);
@@ -115,6 +140,24 @@ var vaxRate = function(region, year, vaccine, dataset) {
 		.style("stroke", "#fff");
 
 	})
+}
+
+var selectedYear = 2013;
+var selectedVaccine = '4+DTaP';
+
+var drawMapNow = function () { drawMap(selectedYear, selectedVaccine); }
+
+drawMapNow();
+
+d3.selectAll('button').on('click', function() {
+	selectedYear = this.value;
+	drawMapNow(); 
+})
+
+d3.selectAll('select').on('change', function() {
+	selectedVaccine = this.value;
+	drawMapNow();
+})
 
 	
 }) }) })
