@@ -1,23 +1,41 @@
-body { font-family: "ubuntu",sans-serif; font-style: normal; font-weight: 300; margin: 40px 50px 50px 50px; } 
-			h1 { font-family: "jaf-bernino-sans-condensed",sans-serif; font-style: normal; font-weight: 300; font-size: 1.8em; 
-				margin: 0; padding: 0; position: relative; color: /*red: #99000d*/ /* blue: #91bfdb*/ black;}
-			h2 { font-weight: 400; font-style: normal; margin: 0 0 20px 0; padding: 0; position: relative; font-size: 1.2em; color: #999; }
-			h3 { padding: 50px 0 0 65px; margin: 0; color: #91bfdb; text-transform: capitalize; clear: both;}
-			h4 { padding: 0 0 15px 0; margin: 0; font-weight: 600; font-size: 1.1em; color: #91bfdb;}
-			.titleVariant { font-weight: 600; color: #555; }
-			.textSemi { font-weight: 600; }
-			.textBold { font-weight: 700; }
-			.textExtra { font-weight: 800; }
-			.meanStyle { font-weight: 600; color: #91bfdb; font-size: 2.5em; line-height: .7em; }
-			.circle { float: left; width: 14px; height: 14px; -moz-border-radius: 7px; -webkit-border-radius: 7px;border-radius: 7px; margin-right: 7px; margin-top: 3px; }
-/**			
-sample code:
-			.circle#color11 { background: #bdd7e7; }
-			.circle#color10 { background: #3182bd; }
-			.circle#color01 { background: #6baed6; }
-			.circle#color00 { background: #08519c; }
-			.circleText { float: left; padding-right: 8px; font-size: .9em; font-weight: 400; }
-**/
+body { 
+	font-family: "ubuntu",sans-serif; 
+	font-style: normal; 
+	font-weight: 300; 
+	margin: 40px 50px 50px 50px; } 
+	h1 { font-family: "jaf-bernino-sans-condensed",sans-serif; font-style: normal; font-weight: 300; font-size: 1.8em; 
+		margin: 0; padding: 0; position: relative; color: /*red: #99000d*/ /* blue: #91bfdb*/ black;}
+	h2 { font-weight: 400; font-style: normal; margin: 0 0 20px 0; padding: 0; position: relative; font-size: 1.2em; color: #999; }
+	h3 { padding: 50px 0 0 65px; margin: 0; color: #91bfdb; text-transform: capitalize; clear: both;}
+	h4 { padding: 0 0 15px 0; margin: 0; font-weight: 600; font-size: 1.1em; color: #91bfdb;}
+	button { 
+		font-size: 15;
+		padding: 0; border: none; background: none; outline: none;
+		color: #757575; 
+	}
+	
+	button:hover {
+		color: #303030;
+	    cursor: pointer;
+	}
+	button.active { 
+		text-align: middle; vertical-align: middle;
+		font-size: 30px;
+		color: #010101;
+	}	
+	.mapContainer {
+		margin: 40px 0 0 50px; white-space: nowrap;
+	}
+	.titleVariant { font-weight: 600; color: #555; }
+	.textSemi { font-weight: 600; }
+	.textBold { font-weight: 700; }
+	.textExtra { font-weight: 800; }
+	.meanStyle { font-weight: 600; color: #91bfdb; font-size: 2.5em; line-height: .7em; }
+	.circle { float: left; width: 14px; height: 14px; -moz-border-radius: 7px; -webkit-border-radius: 7px;border-radius: 7px; margin-right: 7px; margin-top: 3px;
+
+	
+
+
 svg { border: /*1px solid*/ none; }
 			.mapLegendGradient {
 				height: 8px; width: 700px; display: inline-block;  margin-top: 6px;

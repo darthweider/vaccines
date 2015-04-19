@@ -10,6 +10,7 @@
         <!--load auxillary scripts-->
 		<script src="./states.js"></script>
 		<script src="./clean.js"></script>
+		<script src="./data.js"></script>
 
 		<title>U.S. Vaccination Rates</title>
 		
@@ -20,9 +21,17 @@
 <body>
 
 
-<div style="margin: 40px 0 0 50px; white-space: nowrap;">
-    <div class="mapContainer">
-    	<h4>Vaccination Across the U.S.</h4>
+<!-- MAP LEGEND -->
+<div style="clear: both; white-space: nowrap;">
+	<div style="display: inline-block; margin-right: 15px; font-weight: 600; font-size: .9em;">40%</div> 
+	<div class="mapLegendGradient"></div>
+    <div style="display: inline-block; margin-left: 15px; font-weight: 600; font-size: .9em;">100%</div>
+</div>
+
+<div class="mapContainer">
+	<h4>Vaccination Across the U.S.</h4>
+    <div id="map"></div>  
+    <div class="mapOptions">
 		<button value='2003'>2003</button>	
     	<button value='2004'>2004</button>
 		<button value='2005'>2005</button>	
@@ -33,11 +42,11 @@
     	<button value='2010'>2010</button>
 		<button value='2011'>2011</button>	
     	<button value='2012'>2012</button>
-		<button value='2013'>2013</button>	
-	    <select id="vaccine-dropdown" placeholder="4+DTaP">
+		<button value='2013' class='active'>2013</button>	
+	    <select id="vaccine-dropdown" placeholder="1+MMR">
+    	    <option value="1+MMR">MMR (measles, mumps, and rubella)</option>
     	    <option value="4+DTaP">DTaP (diptheria, tetanus, and pertussis)</option>
     	    <option value="3+Polio">Polio</option>
-    	    <option value="1+MMR">MMR (measles, mumps, and rubella)</option>
     	    <option value="3+Hib">Hib (Haemophilus influenzae)</option>
     	    <option value="3+HepB">Hepatitis B</option>
     	    <option value="1+Var">Varicella (chickenpox)</option>
@@ -46,20 +55,12 @@
     	    <option value="Rotavirus">Rotavirus</option>
     	    <option value="4:3:1">DTaP + Polio + MMR</option> 
     	    <option value="4:3:1:3:3:1">DTaP + Polio + MMR + Hib + HepB + Varicella</option>
-        </select>
-        <div id="map"></div>              
+        </select>        
     </div>
-
+    <div id="min" class="text"></div>
+    <div id="max" class="text"></div>
 </div>
 
-
-
-<!-- MAP LEGEND -->
-<div style="clear: both; white-space: nowrap;">
-	<div style="display: inline-block; margin-right: 15px; font-weight: 600; font-size: .9em;">40%</div> 
-	<div class="mapLegendGradient"></div>
-    <div style="display: inline-block; margin-left: 15px; font-weight: 600; font-size: .9em;">100%</div>
-</div>
 
 
 
@@ -68,6 +69,7 @@
 <script>
 d3.csv("tab02_antigen_iap_reduced.csv", function(d) {
 	var overallData = cleanData(d);
+//console.log(overallData);
 
 d3.csv("tab10_wic_iap_reduced.csv", function(d) {
 	var wicData = cleanData(d);
@@ -76,39 +78,30 @@ d3.csv("tab11_nowic_iap_reduced.csv", function(d) {
 	var noWicData = cleanData(d);
 
 
+var overallDict = makeDict(overallData);
+
 
 var allRegionNames = d3.set();
 overallData.forEach(function (row) {
 	allRegionNames.add(row.Region);
 });
 
-//console.log(overallData);
 
-/**returns a single number corresponding to the vaccination rate
-in the given region, year, and dataset for the given vaccine.
-Returns empty string '' if no data available or not found. **/
-var vaxRate = function(region, year, vaccine, dataset) {
-	var correctRow = dataset.filter(function(row) {
-		return row.Year == year && row.Region == region });
-	try
-		{ return correctRow[0][vaccine]; }
-	catch(err)
-		{ 	//console.log('couldnt find vax rate for ' + region) 
-			return ''; }
-}
 
 
 /*******CHOROPLETH*******/
-	var mapWidth = 1800,
-	    mapHeight = 600;
+	var MAP_WIDTH = 1800,
+	    MAP_HEIGHT = 600;
 
 	var mapSvg = d3.select("#map")
 	.append("svg")
-    .attr("width", mapWidth)
-    .attr("height", mapHeight);
+    .attr("width", MAP_WIDTH)
+    .attr("height", MAP_HEIGHT);
 
-	//color-scale
-	var colorScale = d3.scale.linear().domain([40, 95]).range(['red', '#91bfdb']);
+    console.log(findMinVaxRate(selectedYear, selectedVaccine, overallData, overallDict)[1]);
+
+
+
 
 	// albersUsa projection
 	var projection = d3.geo.albersUsa();
@@ -118,6 +111,16 @@ var vaxRate = function(region, year, vaccine, dataset) {
 
 
 var drawMap = function(year, vaccine) {
+	var minVaxRate = findMinVaxRate(year, vaccine, overallData, overallDict);
+	var maxVaxRate = findMaxVaxRate(year, vaccine, overallData, overallDict);
+    var colorScaleMin = minVaxRate[1],
+    	colorScaleMax = maxVaxRate[1];
+	//color-scale
+	var colorScale = d3.scale.linear()
+		.domain([colorScaleMin, colorScaleMax])
+		.range(['red', '#91bfdb']);
+
+
 	d3.json("us-10m.json", function(error, shapes) {
 		var states = topojson.feature(shapes, shapes.objects.states).features;	
 		var statePaths = mapSvg.append("g");
@@ -130,8 +133,9 @@ var drawMap = function(year, vaccine) {
 			var stateFips = state.id;
 			var stateName = findName(stateFips);
 
-			var stateVaxRate = vaxRate(stateName, year, vaccine, overallData);
-			
+			var stateVaxRate = findVaxRate(stateName, year, vaccine, overallDict);
+
+			//data unavailable
 			if (stateVaxRate != '') {
 				return colorScale(stateVaxRate);
 			}
@@ -139,19 +143,29 @@ var drawMap = function(year, vaccine) {
 		})
 		.style("stroke", "#fff");
 
+	d3.select('#min')
+		.text('The lowest vaccination rate in ' + year + ' for ' + vaccine + ' was ' + minVaxRate[1] + ' in ' + minVaxRate[0]);
+	d3.select('#max')
+	.text('The highest vaccination rate in ' + year + ' for ' + vaccine + ' was ' + maxVaxRate[1] + ' in ' + maxVaxRate[0]);
+
 	})
 }
 
 var selectedYear = 2013;
-var selectedVaccine = '4+DTaP';
+var selectedVaccine = '1+MMR';
+
 
 var drawMapNow = function () { drawMap(selectedYear, selectedVaccine); }
 
 drawMapNow();
 
 d3.selectAll('button').on('click', function() {
+	var prevActive = d3.select('button.active');
+	prevActive.classed("active", false);
+	d3.select(this).classed('active', true);
+
 	selectedYear = this.value;
-	drawMapNow(); 
+	drawMapNow();
 })
 
 d3.selectAll('select').on('change', function() {
