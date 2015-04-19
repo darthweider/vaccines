@@ -11,6 +11,7 @@ Returns empty string '' if no data available or not found. **/
 var findVaxRate = function(region, year, vaccine, dict) {
 	try { 
 		var line = dict.get(region + ' ' + year);
+		
 		return line[vaccine];
 	}
 	catch(err)

@@ -13,40 +13,57 @@ body {
 		padding: 0; border: none; background: none; outline: none;
 		color: #757575; 
 	}
-	
-	button:hover {
-		color: #303030;
-	    cursor: pointer;
-	}
-	button.active { 
-		text-align: middle; vertical-align: middle;
-		font-size: 30px;
-		color: #010101;
-	}	
 	.mapContainer {
 		margin: 40px 0 0 50px; white-space: nowrap;
+	}
+	.mapOptions {
+		display: flex; flex-wrap: nowrap; justify-content: space-around; align-items: center;
+		width: 800px; height: 50px; padding: 0;
 	}
 	.titleVariant { font-weight: 600; color: #555; }
 	.textSemi { font-weight: 600; }
 	.textBold { font-weight: 700; }
 	.textExtra { font-weight: 800; }
 	.meanStyle { font-weight: 600; color: #91bfdb; font-size: 2.5em; line-height: .7em; }
-	.circle { float: left; width: 14px; height: 14px; -moz-border-radius: 7px; -webkit-border-radius: 7px;border-radius: 7px; margin-right: 7px; margin-top: 3px;
+	.circle { float: left; width: 14px; height: 14px; -moz-border-radius: 7px; -webkit-border-radius: 7px;border-radius: 7px; margin-right: 7px; margin-top: 3px;}
+}
 
-	
 
 
 svg { border: /*1px solid*/ none; }
-			.mapLegendGradient {
-				height: 8px; width: 700px; display: inline-block;  margin-top: 6px;
-				background: #ff0000; /* Old browsers */
-				background: -moz-linear-gradient(left,  #ff0000 0%, #91bfdb 100%); /* FF3.6+ */
-				background: -webkit-gradient(linear, left top, right top, color-stop(0%,#ff0000), color-stop(100%,#91bfdb)); /* Chrome,Safari4+ */
-				background: -webkit-linear-gradient(left,  #ff0000 0%,#91bfdb 100%); /* Chrome10+,Safari5.1+ */
-				background: -o-linear-gradient(left,  #ff0000 0%,#91bfdb 100%); /* Opera 11.10+ */
-				background: -ms-linear-gradient(left,  #ff0000 0%,#91bfdb 100%); /* IE10+ */
-				background: linear-gradient(to right,  #ff0000 0%,#91bfdb 100%); /* W3C */
-				filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ff0000', endColorstr='#91bfdb',GradientType=1 ); /* IE6-9 */
-			}
-			.axis path { fill: none; stroke: #777; }
-			.axis line { stroke: #777; }
+	.mapLegendGradient {
+		height: 8px; width: 700px; display: inline-block;  margin-top: 6px;
+		background: #ff0000; /* Old browsers */
+		background: -moz-linear-gradient(left,  #ff0000 0%, #91bfdb 100%); /* FF3.6+ */
+		background: -webkit-gradient(linear, left top, right top, color-stop(0%,#ff0000), color-stop(100%,#91bfdb)); /* Chrome,Safari4+ */
+		background: -webkit-linear-gradient(left,  #ff0000 0%,#91bfdb 100%); /* Chrome10+,Safari5.1+ */
+		background: -o-linear-gradient(left,  #ff0000 0%,#91bfdb 100%); /* Opera 11.10+ */
+		background: -ms-linear-gradient(left,  #ff0000 0%,#91bfdb 100%); /* IE10+ */
+		background: linear-gradient(to right,  #ff0000 0%,#91bfdb 100%); /* W3C */
+		filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ff0000', endColorstr='#91bfdb',GradientType=1 ); /* IE6-9 */
+	}
+	.axis { 
+		stroke: #757575; stroke-width: 0.5; 
+	}
+	.xlabel {
+		font-size: 15;
+		padding: 0; border: none; background: none; outline: none;
+		stroke: #C1C1C1; stroke-width: 0.3;
+		text-anchor: middle; alignment-baseline: middle;
+	}
+	.xlabel:hover {
+		stroke: #303030;
+	    cursor: pointer;
+	}
+	.xlabel.active { 
+		text-align: middle; vertical-align: middle;
+		font-size: 30px;
+		stroke: #010101;
+	}	
+	.ylabel {
+		font-size: 15;
+		padding: 0; border: none; background: none; outline: none;
+		stroke-width: 0.3;
+		text-anchor: middle; alignment-baseline: middle;		
+	}
+

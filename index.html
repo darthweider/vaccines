@@ -30,19 +30,8 @@
 
 <div class="mapContainer">
 	<h4>Vaccination Across the U.S.</h4>
-    <div id="map"></div>  
-    <div class="mapOptions">
-		<button value='2003'>2003</button>	
-    	<button value='2004'>2004</button>
-		<button value='2005'>2005</button>	
-    	<button value='2006'>2006</button>
-		<button value='2007'>2007</button>	
-    	<button value='2008'>2008</button>
-		<button value='2009'>2009</button>	
-    	<button value='2010'>2010</button>
-		<button value='2011'>2011</button>	
-    	<button value='2012'>2012</button>
-		<button value='2013' class='active'>2013</button>	
+    <div id="national"></div>  
+	<div>
 	    <select id="vaccine-dropdown" placeholder="1+MMR">
     	    <option value="1+MMR">MMR (measles, mumps, and rubella)</option>
     	    <option value="4+DTaP">DTaP (diptheria, tetanus, and pertussis)</option>
@@ -61,123 +50,9 @@
     <div id="max" class="text"></div>
 </div>
 
+<script src="./nationwide.js"></script>
 
 
-
-
-
-<script>
-d3.csv("tab02_antigen_iap_reduced.csv", function(d) {
-	var overallData = cleanData(d);
-//console.log(overallData);
-
-d3.csv("tab10_wic_iap_reduced.csv", function(d) {
-	var wicData = cleanData(d);
-
-d3.csv("tab11_nowic_iap_reduced.csv", function(d) {
-	var noWicData = cleanData(d);
-
-
-var overallDict = makeDict(overallData);
-
-
-var allRegionNames = d3.set();
-overallData.forEach(function (row) {
-	allRegionNames.add(row.Region);
-});
-
-
-
-
-/*******CHOROPLETH*******/
-	var MAP_WIDTH = 1800,
-	    MAP_HEIGHT = 600;
-
-	var mapSvg = d3.select("#map")
-	.append("svg")
-    .attr("width", MAP_WIDTH)
-    .attr("height", MAP_HEIGHT);
-
-    console.log(findMinVaxRate(selectedYear, selectedVaccine, overallData, overallDict)[1]);
-
-
-
-
-	// albersUsa projection
-	var projection = d3.geo.albersUsa();
-	var path = d3.geo.path().projection(projection);
-	
-
-
-
-var drawMap = function(year, vaccine) {
-	var minVaxRate = findMinVaxRate(year, vaccine, overallData, overallDict);
-	var maxVaxRate = findMaxVaxRate(year, vaccine, overallData, overallDict);
-    var colorScaleMin = minVaxRate[1],
-    	colorScaleMax = maxVaxRate[1];
-	//color-scale
-	var colorScale = d3.scale.linear()
-		.domain([colorScaleMin, colorScaleMax])
-		.range(['red', '#91bfdb']);
-
-
-	d3.json("us-10m.json", function(error, shapes) {
-		var states = topojson.feature(shapes, shapes.objects.states).features;	
-		var statePaths = mapSvg.append("g");
-
-		d3.selectAll("path.map").remove();
-		statePaths.selectAll("path").data(states).enter()
-		.append("path").attr("d", path).attr("class", "map")
-		.attr("transform", "translate(-90, 0)")
-		.style("fill", function (state) {
-			var stateFips = state.id;
-			var stateName = findName(stateFips);
-
-			var stateVaxRate = findVaxRate(stateName, year, vaccine, overallDict);
-
-			//data unavailable
-			if (stateVaxRate != '') {
-				return colorScale(stateVaxRate);
-			}
-				else { return "gray"; }
-		})
-		.style("stroke", "#fff");
-
-	d3.select('#min')
-		.text('The lowest vaccination rate in ' + year + ' for ' + vaccine + ' was ' + minVaxRate[1] + ' in ' + minVaxRate[0]);
-	d3.select('#max')
-	.text('The highest vaccination rate in ' + year + ' for ' + vaccine + ' was ' + maxVaxRate[1] + ' in ' + maxVaxRate[0]);
-
-	})
-}
-
-var selectedYear = 2013;
-var selectedVaccine = '1+MMR';
-
-
-var drawMapNow = function () { drawMap(selectedYear, selectedVaccine); }
-
-drawMapNow();
-
-d3.selectAll('button').on('click', function() {
-	var prevActive = d3.select('button.active');
-	prevActive.classed("active", false);
-	d3.select(this).classed('active', true);
-
-	selectedYear = this.value;
-	drawMapNow();
-})
-
-d3.selectAll('select').on('change', function() {
-	selectedVaccine = this.value;
-	drawMapNow();
-})
-
-	
-}) }) })
-
-
-</script>
 </body>
 
 
