@@ -26,7 +26,7 @@ var originX = PADDING,
 var mapYStart = GRAPH_HEIGHT + PADDING*2;
 
 
-var selectedYear = 2013;
+var selectedYear = '2013';
 var selectedVaccine = '1+MMR';
 
 
@@ -46,7 +46,7 @@ var yAxis = graph.append("line")
 	.attr('class', 'axis');
 
 
-var years = ["2003", "2004", "2005", "2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013"];
+var years = ['2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013'];
 
 var xScale = d3.scale.ordinal()
 	.domain(years).rangeBands([originX, endX], 0.3)
@@ -68,26 +68,28 @@ var nationalVaxRatesByYear = function(vaccine) {
 	})
 }
 var minVaxRatesByYear = function(vaccine) {
-	years.map(function(year) {
+	return years.map(function(year) {
 		return findMinVaxRate(year, vaccine, overallData, overallDict);
 	})
 }
 var maxVaxRatesByYear = function(vaccine) {
-	years.map(function(year) {
+	return years.map(function(year) {
 		return findMaxVaxRate(year, vaccine, overallData, overallDict);
 	})
 }
+/**Returns a number, 
+corresponding to the minimum vaccination rate in any year, for any region, for this vaccine.**/
 var minVaxEver = function(vaccine) {
-	d3.min(minVaxRatesByYear, function(d) {
+	return d3.min(minVaxRatesByYear(vaccine), function(d) {
 		return d[1];
 	})
 }
+/**Returns a number**/
 var maxVaxEver = function(vaccine) {
-	d3.min(maxVaxRatesByYear, function(d) {
+	return d3.min(maxVaxRatesByYear(vaccine), function(d) {
 		return d[1];
 	})
 }
-
 
 
 
@@ -101,15 +103,15 @@ var path = d3.geo.path().projection(projection);
 
 
 var drawNational = function(year, vaccine) {
-	var minVaxRate = minVaxRatesByYear[years.indexOf(year)];
-	var maxVaxRate = maxVaxRatesByYear[years.indexOf(year)];
+	var minVaxRate = minVaxRatesByYear(vaccine)[years.indexOf(year)];
+	var maxVaxRate = maxVaxRatesByYear(vaccine)[years.indexOf(year)];
 
 	//Scales
 	var yScale = d3.scale.linear()
-		.domain([minVaxEver[1], maxVaxEver[1]])
+		.domain([minVaxEver(vaccine), maxVaxEver(vaccine)])
 		.range([endY, originY]);
 	var colorScale = d3.scale.linear()
-		.domain([minVaxEver[1], maxVaxEver[1]])
+		.domain([minVaxEver(vaccine), maxVaxEver(vaccine)])
 		.range(['red', '#91bfdb']);
 
 
@@ -157,7 +159,7 @@ d3.selectAll('select').on('change', function() {
 
 
 d3.selectAll('text.xlabel').on('click', function() {
-	var prevActive = d3.select('text.label.active');
+	var prevActive = d3.select('text.xlabel.active');
 	prevActive.classed("active", false);
 	d3.select(this).classed('active', true);
 	selectedYear = this.innerHTML;
