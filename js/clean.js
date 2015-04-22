@@ -1,6 +1,6 @@
 /** Removes non-ASCII characters from a string **/
 var trimNonAscii = function(str) {
-	return str.trim().replace(/[^A-Za-z 0-9 \.,\?""!@#\$%\^&\*\(\)-_=\+;:<>\/\\\|\}\{\[\]`~]*/g, '')
+	return str.trim().replace(/[^A-Za-z 0-9 ,\?""!@#\$%\^&\*\(\)-_=\+;:<>\/\\\|\}\{\[\]`~]*/g, '')
 }
 
 /** Trim off non-ASCII characters from keys.**/

@@ -116,21 +116,23 @@ var maxVaxEver = function(vaccine) {
 
 var SVG_WIDTH = 1000,
 	PADDING = 50,
-	LEFT_PADDING = 100, //between svg edge and y-axis line
+	LEFT_PADDING = 50, //between svg edge and y-axis line
 	LABEL_PADDING = 25; //between axis labels and axis line
 
 var GRAPH_HEIGHT = 200,
 	graph_width = SVG_WIDTH - PADDING*2,
     MAP_HEIGHT = 300,
-	svg_height = GRAPH_HEIGHT + PADDING*2 + MAP_HEIGHT;
+	svg_height = GRAPH_HEIGHT + PADDING*4 + MAP_HEIGHT;
 
 var originX = LEFT_PADDING,
 	originY = PADDING + GRAPH_HEIGHT,
 	endX = PADDING + graph_width,
 	endY = PADDING;
 
-var mapYStart = GRAPH_HEIGHT + PADDING*2;
+var mapYStart = GRAPH_HEIGHT + PADDING*2 - 70;
 
+var mapCenterY = svg_height - (MAP_HEIGHT/2) - PADDING,
+	mapCenterX = SVG_WIDTH/2;
 
 var selectedYear = '2013',
 	selectedVaccine = 'MMR';
@@ -168,7 +170,7 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 
 var map = nationalSvg.append("g");
 // albersUsa projection
-var projection = d3.geo.albersUsa();
+var projection = d3.geo.albersUsa().translate([mapCenterX, mapCenterY]).scale(800);
 var path = d3.geo.path().projection(projection);
 
 
@@ -229,22 +231,96 @@ var drawNational = function(year, vaccine) {
 
 		map.selectAll("path.map").remove();
 		map.selectAll("path").data(states).enter()
-		.append("path").attr("d", path).attr("class", "map")
-		.attr("transform", "scale(0.5)")
-		.attr("transform", "translate(-50," + mapYStart + ")")
+		.append("path")
+		.attr("d", path).attr("class", "map")
+//		.attr("transform", "translate(-50," + mapYStart + ")")
 		.style("fill", function (state) {
 			var stateFips = state.id;
 			var stateName = findName(stateFips);
-
 			var stateVaxRate = findVaxRate(stateName, year, vaccine);
 
-			//data unavailable
+
 			if (stateVaxRate != '') {
 				return colorScale(stateVaxRate);
 			}
+				//if data unavailable			
 				else { return "gray"; }
 		})
 		.style("stroke", "#fff");
+
+
+	var radiusScale = d3.scale.sqrt()
+		.domain([minVaxEver(vaccine), maxVaxEver(vaccine)])
+		.range([1, 20]);
+
+		map.selectAll("circle.bubble").remove();
+		var bubbles = map.selectAll("circle").data(states).enter()
+			.append("circle")
+			.each(function(state) {
+				var stateFips = state.id;
+				var stateName = findName(stateFips);
+				var stateVaxRate = findVaxRate(stateName, year, vaccine);
+				
+				//set radius
+				if (stateVaxRate != '') {
+					state.properties.r = radiusScale(parseInt(stateVaxRate));
+				}
+				//if data unavailable			
+				else { state.properties.r = 0; }
+				//set centroid				
+				if (findName(state.id) == '') { 
+					state.properties.c = [0,0];}
+				else { state.properties.c = path.centroid(state) };
+				state.properties.x = mapCenterX;
+				state.properties.y = mapCenterY;
+				})
+			.attr("r", function(state) { return state.properties.r; })
+			.attr("cx", function(state) { return state.properties.c[0] })
+			.attr("cy", function(state) { return state.properties.c[1] })
+			.attr("class", "bubble")
+			.attr("fill", 'white')
+			.attr("stroke", 'gray');
+
+		// prepare data for force layout
+		forceNodes = [];
+		for(i = 0 ; i < states.length ; i++ ) {
+			forceNodes.push(states[i].properties);
+		}
+		// force layout, makes circles closer.
+		// This is useful when circle radius changes.
+		force = d3.layout.force().size([SVG_WIDTH,svg_height]).nodes(forceNodes)
+			.charge(-1)
+			.gravity(0.5)
+			.friction(0.1);
+
+		// collision detection, prevents circles from overlapping each other
+		force.on("tick", function() {
+			for(i = 0 ; i < states.length ; i++) {
+				for(j = 0 ; j < states.length ; j++) { 
+					it = states[i].properties; 
+				  	jt = states[j].properties; if(i==j) continue; // not collide with self
+				  	r = it.r + jt.r; // it.c is the centroid of each county and initial position of circle 
+				  	itx = it.x + it.c[0]; ity = it.y + it.c[1]; 
+				  	jtx = jt.x + jt.c[0]; jty = jt.y + jt.c[1]; 
+				  	// distance between centroid of two circles 
+				  	d = Math.sqrt( (itx - jtx) * (itx - jtx) + (ity - jty) * (ity - jty) ); 
+				  	if(r > d) { 
+					  	// there's a collision if distance is smaller than radius
+						dr = ( r - d ) / ( d * 1 );
+						it.x = it.x + ( itx - jtx ) * dr;
+						it.y = it.y + ( ity - jty ) * dr;
+					}
+				}
+			}
+		bubbles
+			.attr("cx",function(state) { 
+				return state.properties.x + state.properties.c[0] - mapCenterX; })
+			.attr("cy",function(state) { 
+				return state.properties.y + state.properties.c[1] - mapCenterY + 150; });
+		});
+
+		force.start()
+
 
 	d3.select('#min')
 		.text('The lowest vaccination rate in ' + year + ' for ' + vaccine + ' was ' + minVaxRate[1] + ' in ' + minVaxRate[0]);
