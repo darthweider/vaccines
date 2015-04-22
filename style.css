@@ -2,7 +2,7 @@ body {
 	font-family: "ubuntu",sans-serif; 
 	font-style: normal; 
 	font-weight: 300; 
-	margin: 40px 50px 50px 50px; } 
+	margin: 40px 50px 50px 20px; } 
 	h1 { font-family: "jaf-bernino-sans-condensed",sans-serif; font-style: normal; font-weight: 300; font-size: 1.8em; 
 		margin: 0; padding: 0; position: relative; color: /*red: #99000d*/ /* blue: #91bfdb*/ black;}
 	h2 { font-weight: 400; font-style: normal; margin: 0 0 20px 0; padding: 0; position: relative; font-size: 1.2em; color: #999; }
@@ -14,7 +14,7 @@ body {
 		color: #757575; 
 	}
 	.mapContainer {
-		margin: 40px 0 0 50px; white-space: nowrap;
+		white-space: nowrap;
 	}
 	.mapOptions {
 		display: flex; flex-wrap: nowrap; justify-content: space-around; align-items: center;
@@ -63,7 +63,14 @@ svg { border: /*1px solid*/ none; }
 	.ylabel {
 		font-size: 15;
 		padding: 0; border: none; background: none; outline: none;
-		stroke-width: 0.3;
+		stroke: #C1C1C1; stroke-width: 0.3;
 		text-anchor: middle; alignment-baseline: middle;		
 	}
-
+	.y-axis-name {
+		font-size: 15;
+		padding: 0; border: none; background: none; outline: none;
+		stroke: #C1C1C1; stroke-width: 0.3;
+		text-anchor: middle; alignment-baseline: middle;
+		transform: rotate(90deg);
+		float: left;
+	}

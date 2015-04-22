@@ -9,16 +9,51 @@ var overallDict = makeDict(overallData);
 
 
 
+/** Summarized statistics for each year. 
+Each item in the array corresponds to a year. **/
+var nationalVaxRatesByYear = function(vaccine) {
+	years.map(function(year) {
+		return findVaxRate('US National', year, vaccine, overallDict);
+	})
+}
+var minVaxRatesByYear = function(vaccine) {
+	return years.map(function(year) {
+		return findMinVaxRate(year, vaccine, overallData, overallDict);
+	})
+}
+var maxVaxRatesByYear = function(vaccine) {
+	return years.map(function(year) {
+		return findMaxVaxRate(year, vaccine, overallData, overallDict);
+	})
+}
+/**Returns a number, 
+corresponding to the minimum vaccination rate in any year, for any region, for this vaccine.**/
+var minVaxEver = function(vaccine) {
+	return d3.min(minVaxRatesByYear(vaccine), function(d) {
+		return d[1];
+	})
+}
+/**Returns a number**/
+var maxVaxEver = function(vaccine) {
+	return d3.min(maxVaxRatesByYear(vaccine), function(d) {
+		return d[1];
+	})
+}
+
+
+
+
 var SVG_WIDTH = 1000,
 	PADDING = 50,
+	LEFT_PADDING = 100, //between svg edge and y-axis line
 	LABEL_PADDING = 25; //between axis labels and axis line
 
-var GRAPH_HEIGHT = 300,
+var GRAPH_HEIGHT = 200,
 	graph_width = SVG_WIDTH - PADDING*2,
-    MAP_HEIGHT = 600,
+    MAP_HEIGHT = 300,
 	svg_height = GRAPH_HEIGHT + PADDING*2 + MAP_HEIGHT;
 
-var originX = PADDING,
+var originX = LEFT_PADDING,
 	originY = PADDING + GRAPH_HEIGHT,
 	endX = PADDING + graph_width,
 	endY = PADDING;
@@ -60,45 +95,11 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 	.classed("active", function(year) { return year == 2013; })
 	.text(function(year) { return year; });
 
-/** Summarized statistics for each year. 
-Each item in the array corresponds to a year. **/
-var nationalVaxRatesByYear = function(vaccine) {
-	years.map(function(year) {
-		return findVaxRate('US National', year, vaccine, overallDict);
-	})
-}
-var minVaxRatesByYear = function(vaccine) {
-	return years.map(function(year) {
-		return findMinVaxRate(year, vaccine, overallData, overallDict);
-	})
-}
-var maxVaxRatesByYear = function(vaccine) {
-	return years.map(function(year) {
-		return findMaxVaxRate(year, vaccine, overallData, overallDict);
-	})
-}
-/**Returns a number, 
-corresponding to the minimum vaccination rate in any year, for any region, for this vaccine.**/
-var minVaxEver = function(vaccine) {
-	return d3.min(minVaxRatesByYear(vaccine), function(d) {
-		return d[1];
-	})
-}
-/**Returns a number**/
-var maxVaxEver = function(vaccine) {
-	return d3.min(maxVaxRatesByYear(vaccine), function(d) {
-		return d[1];
-	})
-}
-
-
 
 var map = nationalSvg.append("g");
 // albersUsa projection
 var projection = d3.geo.albersUsa();
 var path = d3.geo.path().projection(projection);
-
-
 
 
 
@@ -109,10 +110,29 @@ var drawNational = function(year, vaccine) {
 	//Scales
 	var yScale = d3.scale.linear()
 		.domain([minVaxEver(vaccine), maxVaxEver(vaccine)])
-		.range([endY, originY]);
+		.range([originY, endY])
+		.nice();
 	var colorScale = d3.scale.linear()
 		.domain([minVaxEver(vaccine), maxVaxEver(vaccine)])
 		.range(['red', '#91bfdb']);
+
+
+	var yAxisLabels = graph.selectAll("text.ylabel")
+		.data(yScale.ticks(5)).enter()
+		.append("text")
+		.attr("x", originX - LABEL_PADDING)
+		.attr("y", function(rate) { return yScale(rate); })
+		.classed("ylabel", true)
+		.text(function(rate) { return rate + "%"; });
+
+	var yAxisName = graph.append("text")
+		.attr("x", originX - LABEL_PADDING*2)
+		.attr("y", originY - endY)
+		.attr("class", 'y-axis-name')
+		.text('vaccination rate');
+
+	console.log(yAxisName);
+
 
 
 	d3.json("us-10m.json", function(error, shapes) {
@@ -121,6 +141,7 @@ var drawNational = function(year, vaccine) {
 		map.selectAll("path.map").remove();
 		map.selectAll("path").data(states).enter()
 		.append("path").attr("d", path).attr("class", "map")
+		.attr("transform", "scale(0.5)")
 		.attr("transform", "translate(-50," + mapYStart + ")")
 		.style("fill", function (state) {
 			var stateFips = state.id;
