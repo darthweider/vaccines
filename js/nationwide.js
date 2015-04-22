@@ -1,8 +1,8 @@
-d3.csv("tab02_antigen_iap_reduced.csv", function(d) {
+d3.csv("../data/tab02_antigen_iap_reduced.csv", function(d) {
 var overallData = cleanData(d);
-d3.csv("tab10_wic_iap_reduced.csv", function(d) {
+d3.csv("../data/tab10_wic_iap_reduced.csv", function(d) {
 var wicData = cleanData(d);
-d3.csv("tab11_nowic_iap_reduced.csv", function(d) {
+d3.csv("../data/tab11_nowic_iap_reduced.csv", function(d) {
 var noWicData = cleanData(d);
 //console.log(overallData);
 var overallDict = makeDict(overallData);
