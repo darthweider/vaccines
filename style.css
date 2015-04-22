@@ -20,13 +20,7 @@ body {
 		display: flex; flex-wrap: nowrap; justify-content: space-around; align-items: center;
 		width: 800px; height: 50px; padding: 0;
 	}
-	.titleVariant { font-weight: 600; color: #555; }
-	.textSemi { font-weight: 600; }
-	.textBold { font-weight: 700; }
-	.textExtra { font-weight: 800; }
-	.meanStyle { font-weight: 600; color: #91bfdb; font-size: 2.5em; line-height: .7em; }
-	.circle { float: left; width: 14px; height: 14px; -moz-border-radius: 7px; -webkit-border-radius: 7px;border-radius: 7px; margin-right: 7px; margin-top: 3px;}
-}
+
 
 
 
