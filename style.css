@@ -72,3 +72,7 @@ svg { border: /*1px solid*/ none; }
 	.us-point.active {
 		fill: #010101;
 	}
+
+	.graph-line {
+		stroke: #303030; stroke-width: 2; fill: none;
+	}
