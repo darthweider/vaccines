@@ -1,4 +1,5 @@
 statesAbbr = [
+	  ["US National", "US", "US", ''],
 	  ["Alabama","AL","Ala.",1],
 	  ["Alaska","AK","Alaska",2],
 	  ["Arizona","AZ","Ariz.",4],
@@ -54,12 +55,23 @@ statesAbbr = [
 
 
 var findFips = function(name) {
+	var fips = 0;
 	statesAbbr.forEach(function(state) {
 		if (state[0] == name) {
-			return state[3];
+			fips = state[3];
 		}
-		else console.log('could not find Fips for ' + name); 
 	})
+	return fips;
+}
+
+var findAbbr = function(name) {
+	var abbr = '';
+	statesAbbr.forEach(function(state) {
+		if (state[0] == name) {
+			abbr = state[1];
+		}
+	})
+	return abbr;
 }
 
 var findName = function(fips) {

@@ -17,10 +17,11 @@ var trimKeys = function(rows) {
 	})
 }
 
-/** Delete blank rows **/
+/** Delete blank rows and non-state, non-'US National' rows **/
 var trimExcessRows = function(rows) {
 	return rows.filter(function(row) {
-		return row['Region'] != '';
+		var name = trimNonAscii(row['Region']);
+		return name != '' && (findAbbr(name));
 	})
 }
 

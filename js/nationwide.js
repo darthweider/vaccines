@@ -1,34 +1,101 @@
-d3.csv("../data/tab02_antigen_iap_reduced.csv", function(d) {
-var overallData = cleanData(d);
-d3.csv("../data/tab10_wic_iap_reduced.csv", function(d) {
-var wicData = cleanData(d);
-d3.csv("../data/tab11_nowic_iap_reduced.csv", function(d) {
-var noWicData = cleanData(d);
-//console.log(overallData);
-var overallDict = makeDict(overallData);
+d3.csv("./data/mmr_only.csv", function(d) {
+var mmrData = cleanData(d);
+//console.log(mmrData);
 
+
+/** Make a dictionary for a dataset.
+The key is something like 'Alabama 2008',
+and the value is an object containing vaccination rate. **/
+var makeLookup = function(dataset) {
+	return d3.map(dataset, function(d) { return d.Region + ' ' + d.Year; });
+}
+var mmrLookup = makeLookup(mmrData);
+//console.log(mmrLookup);
+
+
+var data = {'MMR': {array: mmrData, lookup: mmrLookup}
+	}
+
+var years = ['2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013'];
+
+
+
+
+
+
+
+
+
+/*************************FUNCTIONS FOR ANALYZING DATA***************************/
+
+/**returns a single number corresponding to the vaccination rate
+in the given region, year, and dictionary for the given vaccine.
+Returns empty string '' if no data available or not found. **/
+var findVaxRate = function(region, year, vaccine) {
+	try { 
+		var lookup = data[vaccine]['lookup'];
+		return lookup.get(region + ' ' + year).VaccinationRate;
+	}
+	catch(err)
+		{ 	//console.log('couldnt find vax rate for ' + region) 
+			return '';
+	}
+}
+
+/** Returns the region and % of the lowest vaccination rate in a given year.
+Returns an array containing the region with the lowest vaccination rate and the rate.
+Note that both a dataset and its corresponding dictionary must be inputted. **/
+var findMinVaxRate = function(year, vaccine) {
+	var dataset = data[vaccine]['array'];
+
+	return dataset.reduce(function(prev, curr, i, a) {
+		var currRegion = curr.Region;
+		var currVaxRate = findVaxRate(currRegion, year, vaccine);
+
+		if (currVaxRate < prev[1] && currVaxRate != '') {
+			return [currRegion, currVaxRate];
+		}
+		else { return prev; }
+	}, ['', 100]);
+}
+
+/** Returns an array containing the region with the highest vaccination rate and the rate.
+Note that both a dataset and its corresponding dictionary must be inputted. **/
+var findMaxVaxRate = function(year, vaccine) {
+	var dataset = data[vaccine]['array'];
+
+	return dataset.reduce(function(prev, curr, i, a) {
+		var currRegion = curr.Region;
+		var currVaxRate = findVaxRate(currRegion, year, vaccine);
+
+		if (currVaxRate > prev[1] && currVaxRate != '') {
+			return [currRegion, currVaxRate];
+		}
+		else { return prev; }
+	}, ['', 0]);
+}
 
 
 /** Summarized statistics for each year. 
 Each item in the array corresponds to a year. **/
-
-/**array of numbers**/
 var nationalVaxRatesByYear = function(vaccine) {
 	return years.map(function(year) {
-		return findVaxRate('US National', year, vaccine, overallDict);
+		return findVaxRate('US National', year, vaccine);
 	})
 }
-/**array of style [region, rate] **/
+
 var minVaxRatesByYear = function(vaccine) {
 	return years.map(function(year) {
-		return findMinVaxRate(year, vaccine, overallData, overallDict);
+		return findMinVaxRate(year, vaccine);
 	})
 }
+
 var maxVaxRatesByYear = function(vaccine) {
 	return years.map(function(year) {
-		return findMaxVaxRate(year, vaccine, overallData, overallDict);
+		return findMaxVaxRate(year, vaccine);
 	})
 }
+
 /**Returns a number, 
 corresponding to the minimum vaccination rate in any year, for any region, for this vaccine.**/
 var minVaxEver = function(vaccine) {
@@ -42,6 +109,7 @@ var maxVaxEver = function(vaccine) {
 		return d[1];
 	})
 }
+/**************************************************************************************/
 
 
 
@@ -64,8 +132,8 @@ var originX = LEFT_PADDING,
 var mapYStart = GRAPH_HEIGHT + PADDING*2;
 
 
-var selectedYear = '2013';
-var selectedVaccine = '1+MMR';
+var selectedYear = '2013',
+	selectedVaccine = 'MMR';
 
 
 var nationalSvg = d3.select("#national")
@@ -84,7 +152,6 @@ var yAxis = graph.append("line")
 	.attr('class', 'axis');
 
 
-var years = ['2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013'];
 
 var xScale = d3.scale.ordinal()
 	.domain(years).rangeBands([originX, endX], 0.3)
@@ -157,7 +224,7 @@ var drawNational = function(year, vaccine) {
 		.classed("graph-line", true)
 
 
-	d3.json("us-10m.json", function(error, shapes) {
+	d3.json("./data/us-10m.json", function(error, shapes) {
 		var states = topojson.feature(shapes, shapes.objects.states).features;	
 
 		map.selectAll("path.map").remove();
@@ -169,7 +236,7 @@ var drawNational = function(year, vaccine) {
 			var stateFips = state.id;
 			var stateName = findName(stateFips);
 
-			var stateVaxRate = findVaxRate(stateName, year, vaccine, overallDict);
+			var stateVaxRate = findVaxRate(stateName, year, vaccine);
 
 			//data unavailable
 			if (stateVaxRate != '') {
@@ -195,11 +262,13 @@ var drawNationalNow = function () { drawNational(selectedYear, selectedVaccine);
 
 drawNationalNow();
 
+
+/**
 d3.selectAll('select').on('change', function() {
 	selectedVaccine = this.value;
 	drawNationalNow();
 })
-
+**/
 
 var setActiveLabel = function(label) {
 	var prevActive = d3.select('text.xlabel.active')
@@ -216,4 +285,4 @@ d3.selectAll('text.xlabel').on('click', function() {
 	drawNationalNow();
 })
 	
-}) }) })
+})
