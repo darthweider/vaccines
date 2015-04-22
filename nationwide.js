@@ -11,11 +11,14 @@ var overallDict = makeDict(overallData);
 
 /** Summarized statistics for each year. 
 Each item in the array corresponds to a year. **/
+
+/**array of numbers**/
 var nationalVaxRatesByYear = function(vaccine) {
-	years.map(function(year) {
+	return years.map(function(year) {
 		return findVaxRate('US National', year, vaccine, overallDict);
 	})
 }
+/**array of style [region, rate] **/
 var minVaxRatesByYear = function(vaccine) {
 	return years.map(function(year) {
 		return findMinVaxRate(year, vaccine, overallData, overallDict);
@@ -125,14 +128,26 @@ var drawNational = function(year, vaccine) {
 		.classed("ylabel", true)
 		.text(function(rate) { return rate + "%"; });
 
+	var yAxisNameXPos = originX - LABEL_PADDING*2,
+		yAxisNameYPos = originY - endY;
 	var yAxisName = graph.append("text")
-		.attr("x", originX - LABEL_PADDING*2)
-		.attr("y", originY - endY)
+		.attr("transform", "translate(" + yAxisNameXPos + ", " + yAxisNameYPos + ") rotate(-90)")
 		.attr("class", 'y-axis-name')
 		.text('vaccination rate');
 
-	console.log(yAxisName);
 
+	var nationalPts = graph.selectAll("circle.us-point")
+		.data(nationalVaxRatesByYear(vaccine)).enter()
+		.append("circle")
+		.attr("cx", function(d,i) { return xScale(years[i]) })
+		.attr("cy", function(d) { return yScale(d) })
+		.attr("values", function(d,i) { return years[i] })
+		.attr("r", 3)
+		.classed("us-point", true)
+		.classed("active", function(d,i) { return year[i] == '2013'; })
+		.attr("innerHTML", function(d, i) { return '' + year[i] });
+
+	console.log(nationalPts);
 
 
 	d3.json("us-10m.json", function(error, shapes) {
@@ -179,15 +194,27 @@ d3.selectAll('select').on('change', function() {
 })
 
 
+var setActiveLabel = function(label) {
+	var prevActive = d3.select('text.xlabel.active')
+		.classed("active", false);
+	d3.select(label).classed('active', true);
+}
+
+var setActivePoint = function(pt) {
+	var prevActive = d3.select('circle.us-point.active')
+		.classed("active", false);
+	pt.classed('active', true);
+}
+
+//Listener for x axis labels. Change selected year when label clicked.
 d3.selectAll('text.xlabel').on('click', function() {
-	var prevActive = d3.select('text.xlabel.active');
-	prevActive.classed("active", false);
-	d3.select(this).classed('active', true);
+//	var pt = d3.selectAll('circle.us-point')
+//		.filter(function(p) { 	console.log(p); return p.innerHTML == this.innerHTML});
+
+	setActiveLabel(this);
+//	setActivePoint(pt);
 	selectedYear = this.innerHTML;
 	drawNationalNow();
 })
-
-
-
 	
 }) }) })
