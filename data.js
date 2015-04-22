@@ -1,3 +1,5 @@
+
+
 /** Make a dictionary for a dataset.
 The key is something like 'Alabama 2008',
 and the value is an object corresponding to the various vaccination rates. **/
@@ -46,4 +48,36 @@ var findMaxVaxRate = function(year, vaccine, dataset, dict) {
 		}
 		else { return prev; }
 	}, ['', 0]);
+}
+
+
+/** Summarized statistics for each year. 
+Each item in the array corresponds to a year. **/
+var nationalVaxRatesByYear = function(vaccine) {
+	years.map(function(year) {
+		return findVaxRate('US National', year, vaccine, overallDict);
+	})
+}
+var minVaxRatesByYear = function(vaccine) {
+	return years.map(function(year) {
+		return findMinVaxRate(year, vaccine, overallData, overallDict);
+	})
+}
+var maxVaxRatesByYear = function(vaccine) {
+	return years.map(function(year) {
+		return findMaxVaxRate(year, vaccine, overallData, overallDict);
+	})
+}
+/**Returns a number, 
+corresponding to the minimum vaccination rate in any year, for any region, for this vaccine.**/
+var minVaxEver = function(vaccine) {
+	return d3.min(minVaxRatesByYear(vaccine), function(d) {
+		return d[1];
+	})
+}
+/**Returns a number**/
+var maxVaxEver = function(vaccine) {
+	return d3.min(maxVaxRatesByYear(vaccine), function(d) {
+		return d[1];
+	})
 }
