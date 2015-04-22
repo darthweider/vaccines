@@ -147,7 +147,14 @@ var drawNational = function(year, vaccine) {
 		.classed("active", function(d,i) { return year[i] == '2013'; })
 		.attr("innerHTML", function(d, i) { return '' + year[i] });
 
-	console.log(nationalPts);
+	var lineFunction = d3.svg.line()
+		.x(function(d, i) { return xScale(years[i]) })
+		.y(function(d) { return yScale(d) })
+		.interpolate("linear");
+
+	var nationalLine = graph.append("path")
+		.attr("d", lineFunction(nationalVaxRatesByYear(vaccine)))
+		.classed("graph-line", true)
 
 
 	d3.json("us-10m.json", function(error, shapes) {
@@ -200,19 +207,11 @@ var setActiveLabel = function(label) {
 	d3.select(label).classed('active', true);
 }
 
-var setActivePoint = function(pt) {
-	var prevActive = d3.select('circle.us-point.active')
-		.classed("active", false);
-	pt.classed('active', true);
-}
+
 
 //Listener for x axis labels. Change selected year when label clicked.
 d3.selectAll('text.xlabel').on('click', function() {
-//	var pt = d3.selectAll('circle.us-point')
-//		.filter(function(p) { 	console.log(p); return p.innerHTML == this.innerHTML});
-
 	setActiveLabel(this);
-//	setActivePoint(pt);
 	selectedYear = this.innerHTML;
 	drawNationalNow();
 })
