@@ -126,7 +126,7 @@ mapSVG.call(tip);
 
 
 var stories;
-d3.json("../data/stories.json", function(error, data) {
+d3.json("data/stories.json", function(error, data) {
 	stories = data;
 
 	var minOutbreaks = d3.min(stories, function(d){return d['Number Affected'];});
@@ -134,7 +134,7 @@ d3.json("../data/stories.json", function(error, data) {
 
 	var radiusScale = d3.scale.sqrt().domain([minOutbreaks, maxOutbreaks]).range([MIN_CIRCLE_SIZE, MAX_CIRCLE_SIZE]);
 
-	d3.json("../data/us-10m.json", function(error, mapData) {
+	d3.json("data/us-10m.json", function(error, mapData) {
 		//create and color map
 		g.selectAll("path").data(topojson.feature(mapData,mapData.objects.states).features)
 		.enter().append("path")
