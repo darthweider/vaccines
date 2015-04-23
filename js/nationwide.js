@@ -2,6 +2,8 @@ d3.csv("./data/mmr_only.csv", function(d) {
 var mmrData = cleanData(d);
 //console.log(mmrData);
 
+d3.tsv("./data/us-pop.tsv", function(d) {
+var popData = cleanData(d);
 
 /** Make a dictionary for a dataset.
 The key is something like 'Alabama 2008',
@@ -9,18 +11,13 @@ and the value is an object containing vaccination rate. **/
 var makeLookup = function(dataset) {
 	return d3.map(dataset, function(d) { return d.Region + ' ' + d.Year; });
 }
-var mmrLookup = makeLookup(mmrData);
-//console.log(mmrLookup);
 
 
-var data = {'MMR': {array: mmrData, lookup: mmrLookup}
+var data = {'MMR': {array: mmrData, lookup: makeLookup(mmrData)},
+			'Population': {array: popData, lookup: makeLookup(popData)}
 	}
 
 var years = ['2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013'];
-
-
-
-
 
 
 
@@ -130,9 +127,9 @@ var originX = LEFT_PADDING,
 	endX = PADDING + graph_width,
 	endY = PADDING;
 
-var mapYStart = GRAPH_HEIGHT + PADDING*2 - 70;
+var mapYStart = GRAPH_HEIGHT;
 
-var mapCenterY = svg_height - (MAP_HEIGHT/2) - PADDING,
+var mapCenterY = svg_height - (MAP_HEIGHT/2) - PADDING*1.5,
 	mapCenterX = SVG_WIDTH/2;
 
 var selectedYear = '2013',
@@ -146,6 +143,7 @@ var nationalSvg = d3.select("#national")
 	.attr("height", svg_height);
 
 var graph = nationalSvg.append("g");
+
 var xAxis = graph.append("line")
 	.attr('x1', originX).attr('y1', originY)
 	.attr('x2', endX).attr('y2', originY)
@@ -154,7 +152,6 @@ var yAxis = graph.append("line")
 	.attr('x1', originX).attr('y1', originY)
 	.attr('x2', originX).attr('y2', endY)
 	.attr('class', 'axis');
-
 
 
 var xScale = d3.scale.ordinal()
@@ -188,7 +185,7 @@ var drawNational = function(year, vaccine) {
 		.nice();
 	var colorScale = d3.scale.linear()
 		.domain([minVaxEver(vaccine), maxVaxEver(vaccine)])
-		.range(['red', '#91bfdb']);
+		.range(['maroon', 'white']);
 
 
 	var yAxisLabels = graph.selectAll("text.ylabel")
@@ -247,40 +244,31 @@ var drawNational = function(year, vaccine) {
 
 	d3.json("./data/us-10m.json", function(error, shapes) {
 		var states = topojson.feature(shapes, shapes.objects.states).features;	
-
-//choropleth
-/**
-		map.selectAll("path.map").remove();
-		map.selectAll("path").data(states).enter()
-		.append("path")
-		.attr("d", path).attr("class", "map")
-//		.attr("transform", "translate(-50," + mapYStart + ")")
-		.style("fill", function (state) {
-			var stateFips = state.id;
-			var stateName = fipsToName(stateFips);
-			var stateVaxRate = findVaxRate(stateName, year, vaccine);
-
-
-			if (stateVaxRate != '') {
-				return colorScale(stateVaxRate);
-			}
-				//if data unavailable			
-				else { return "gray"; }
+		var nonContinentalStates = states.filter(function(state) {
+			return state.id == 2 || state.id == 15;
 		})
-		.style("stroke", "#fff");
-**/
 
+
+	/** Radius scale based on population **/
 	var radiusScale = d3.scale.sqrt()
-		.domain([minVaxEver(vaccine), maxVaxEver(vaccine)])
-		.range([2, 25]);
+		.domain([minVaxEver('Population'), maxVaxEver('Population')])
+		.range([10, 30]);
 
 	var radiusForFips = function(fips) {
+		var population = findVaxRate(fipsToName(fips), year, 'Population');
+		if (population != '') {
+			return radiusScale(parseFloat(population));
+		}
+		//if data unavailable			
+		else { return 0; } 
+	}
+	var colorForFips = function(fips) {
 		var stateVaxRate = findVaxRate(fipsToName(fips), year, vaccine);
-			if (stateVaxRate != '') {
-				return radiusScale(parseInt(stateVaxRate));
-			}
-			//if data unavailable			
-			else { return 0; } 
+		if (stateVaxRate != '') {
+			return colorScale(parseFloat(stateVaxRate));
+		}
+		//if data unavailable			
+		else { return 'gray'; } 
 	}
 
 	var centroid = function(state) {			
@@ -288,34 +276,33 @@ var drawNational = function(year, vaccine) {
 			else { return path.centroid(state) };
 	}
 
-	map.selectAll(".node").remove()
+	map.selectAll(".node, .bubble, .bubble-label").remove()
 	// force layout, makes circles closer.
 	// This is useful when circle radius changes.
 	var force = d3.layout.force().size([SVG_WIDTH,MAP_HEIGHT]).nodes(states)
-		.charge(-.5)
-		.gravity(0.5)
-		.friction(0.1)
+		.charge(-10)
+		.gravity(0)
+		.friction(1)
 		.start();
 
 	var node = map.selectAll(".node")
 		.data(force.nodes()).enter()
 		.append("g")
-		.attr("innerHTML", function(state) { return fipsToAbbr(state.id) })		
-		.attr('class', function(state) { return fipsToAbbr(state.id) })
 		.classed('node', true)
 
 	var bubble = node.append("circle")
-		.attr("r", function(state) { return radiusForFips(state.id); })
+		.attr("r", function(state) { return radiusForFips(state.id) })
+		.attr("fill", function(state) { return colorForFips(state.id) })
 		.attr("cx", function(state) {
 			return centroid(state)[0];
 		})
 		.attr("cy", function(state) {
 			return centroid(state)[1];
 		})
-		.attr("innerHTML", function(state) { return fipsToAbbr(state.id) })
 		.attr('class', function(state) { return fipsToAbbr(state.id) })
 		.classed("bubble", true)
-
+		.classed("active", function(state) { return state.id == selectedState })
+ 
 
 
 	var bubbleLabel = node.append("text")
@@ -328,6 +315,7 @@ var drawNational = function(year, vaccine) {
 		.text(function(state) { return nameToAbbr(fipsToName(state.id)); })
 		.attr('class', function(state) { return fipsToAbbr(state.id) })
 		.classed("bubble-label", true)
+		.classed("active", function(state) { return state.id == selectedState })
 
 	bubble.each(function(state) {
 			state.properties.r = radiusForFips(state.id);
@@ -336,6 +324,28 @@ var drawNational = function(year, vaccine) {
 			state.properties.x = mapCenterX;
 			state.properties.y = mapCenterY;
 			})
+
+		
+	map.selectAll('rect.non-continental').remove();
+	var BOX_RADIUS = 30;
+	nonContinentalStates.forEach(function(state) {
+		map.append("rect")
+			.classed('non-continental', true)
+			.attr("x", centroid(state)[0] - BOX_RADIUS )
+			.attr("y", centroid(state)[1] - BOX_RADIUS )
+			.attr("width", BOX_RADIUS*2).attr("height", BOX_RADIUS*2)
+	})
+/**
+	var box = node.selectAll('rect.non-continental')
+		.data(nonContinentalStates).enter()
+		.append("rect")
+		.classed('non-continental', true)
+		.attr("x", function(state) { return centroid(state) - BOX_RADIUS })
+		.attr("y", function(state) { return centroid(state) - BOX_RADIUS })
+		.attr("width", BOX_RADIUS).attr("length", BOX_RADIUS)
+	console.log(nonContinentalStates)
+	console.log(box)
+**/
 
 	// collision detection, prevents circles from overlapping each other
 	force.on("tick", function() {
@@ -378,6 +388,8 @@ var drawNational = function(year, vaccine) {
 		
 		map.selectAll('.' + fipsToAbbr(state.id))
 			.classed("active", true);
+
+		selectedState = state.id;
 
 		plotLine(vaccine, fipsToName(state.id), 'state');
 
@@ -422,12 +434,19 @@ d3.selectAll('select').on('change', function() {
 
 //Listener for x axis labels. Change selected year when label clicked.
 d3.selectAll('text.xlabel').on('click', function() {
-	var prevActive = d3.select('text.xlabel.active')
-		.classed("active", false);
-	d3.select(this).classed('active', true);	
+	d3.select('text.xlabel.active')
+		.classed("active", false)
+		.transition()
+			.style('font-size', '15px')
+			.attr('stroke', '#C1C1C1');
+	d3.select(this)
+		.classed('active', true)
+		.transition()
+			.style('font-size', '30px')
+			.attr('stroke', '#010101');
 
 	selectedYear = this.innerHTML;
 	drawNationalNow();
 })
 	
-})
+}) })
