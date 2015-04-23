@@ -42,6 +42,7 @@ var findVaxRate = function(region, year, vaccine) {
 	}
 }
 
+
 /** Returns the region and % of the lowest vaccination rate in a given year.
 Returns an array containing the region with the lowest vaccination rate and the rate.
 Note that both a dataset and its corresponding dictionary must be inputted. **/
@@ -78,9 +79,9 @@ var findMaxVaxRate = function(year, vaccine) {
 
 /** Summarized statistics for each year. 
 Each item in the array corresponds to a year. **/
-var nationalVaxRatesByYear = function(vaccine) {
+var vaxRatesByYear = function(vaccine, region) {
 	return years.map(function(year) {
-		return findVaxRate('US National', year, vaccine);
+		return findVaxRate(region, year, vaccine);
 	})
 }
 
@@ -204,31 +205,40 @@ var drawNational = function(year, vaccine) {
 		.attr("class", 'y-axis-name')
 		.text('vaccination rate');
 
+	var plotLine = function(vaccine, region, className) {
+		graph.selectAll("circle." + className).remove()
+		var nationalPts = graph.selectAll("circle." + className)
+			.data(vaxRatesByYear(vaccine, region)).enter()
+			.append("circle")
+			.attr("cx", function(d,i) { return xScale(years[i]) })
+			.attr("cy", function(d) { return yScale(d) })
+			.attr("values", function(d,i) { return years[i] })
+			.attr("r", 3)
+			.classed(className, true)
+			.classed("active", function(d,i) { return year[i] == selectedYear; })
+			.attr("innerHTML", function(d, i) { return '' + year[i] });
 
-	var nationalPts = graph.selectAll("circle.us-point")
-		.data(nationalVaxRatesByYear(vaccine)).enter()
-		.append("circle")
-		.attr("cx", function(d,i) { return xScale(years[i]) })
-		.attr("cy", function(d) { return yScale(d) })
-		.attr("values", function(d,i) { return years[i] })
-		.attr("r", 3)
-		.classed("us-point", true)
-		.classed("active", function(d,i) { return year[i] == '2013'; })
-		.attr("innerHTML", function(d, i) { return '' + year[i] });
+		var lineFunction = d3.svg.line()
+			.x(function(d, i) { return xScale(years[i]) })
+			.y(function(d) { return yScale(d) })
+			.interpolate("linear");
 
-	var lineFunction = d3.svg.line()
-		.x(function(d, i) { return xScale(years[i]) })
-		.y(function(d) { return yScale(d) })
-		.interpolate("linear");
+		graph.selectAll("path.graph-line." + className).remove()
+		var line = graph.append("path")
+			.attr("d", lineFunction(vaxRatesByYear(vaccine, region)))
+			.classed("graph-line", true)
+			.classed(className, true)
+	}
 
-	var nationalLine = graph.append("path")
-		.attr("d", lineFunction(nationalVaxRatesByYear(vaccine)))
-		.classed("graph-line", true)
+
+	var nationalLine = plotLine(vaccine, 'US National', 'us-line');
 
 
 	d3.json("./data/us-10m.json", function(error, shapes) {
 		var states = topojson.feature(shapes, shapes.objects.states).features;	
 
+//choropleth
+/**
 		map.selectAll("path.map").remove();
 		map.selectAll("path").data(states).enter()
 		.append("path")
@@ -247,79 +257,108 @@ var drawNational = function(year, vaccine) {
 				else { return "gray"; }
 		})
 		.style("stroke", "#fff");
-
+**/
 
 	var radiusScale = d3.scale.sqrt()
 		.domain([minVaxEver(vaccine), maxVaxEver(vaccine)])
-		.range([1, 20]);
+		.range([2, 25]);
 
-		map.selectAll("circle.bubble").remove();
-		var bubbles = map.selectAll("circle").data(states).enter()
-			.append("circle")
-			.each(function(state) {
-				var stateFips = state.id;
-				var stateName = findName(stateFips);
-				var stateVaxRate = findVaxRate(stateName, year, vaccine);
-				
-				//set radius
-				if (stateVaxRate != '') {
-					state.properties.r = radiusScale(parseInt(stateVaxRate));
-				}
-				//if data unavailable			
-				else { state.properties.r = 0; }
-				//set centroid				
-				if (findName(state.id) == '') { 
-					state.properties.c = [0,0];}
-				else { state.properties.c = path.centroid(state) };
-				state.properties.x = mapCenterX;
-				state.properties.y = mapCenterY;
-				})
-			.attr("r", function(state) { return state.properties.r; })
-			.attr("cx", function(state) { return state.properties.c[0] })
-			.attr("cy", function(state) { return state.properties.c[1] })
-			.attr("class", "bubble")
-			.attr("fill", 'white')
-			.attr("stroke", 'gray');
+	var radiusForFips = function(fips) {
+		var stateVaxRate = findVaxRate(findName(fips), year, vaccine);
+			if (stateVaxRate != '') {
+				return radiusScale(parseInt(stateVaxRate));
+			}
+			//if data unavailable			
+			else { return 0; } 
+	}
 
-		// prepare data for force layout
-		forceNodes = [];
-		for(i = 0 ; i < states.length ; i++ ) {
-			forceNodes.push(states[i].properties);
-		}
-		// force layout, makes circles closer.
-		// This is useful when circle radius changes.
-		force = d3.layout.force().size([SVG_WIDTH,svg_height]).nodes(forceNodes)
-			.charge(-1)
-			.gravity(0.5)
-			.friction(0.1);
+	var centroid = function(state) {			
+			if (findName(state.id) == '') { return [0,0] }
+			else { return path.centroid(state) };
+	}
 
-		// collision detection, prevents circles from overlapping each other
-		force.on("tick", function() {
-			for(i = 0 ; i < states.length ; i++) {
-				for(j = 0 ; j < states.length ; j++) { 
-					it = states[i].properties; 
-				  	jt = states[j].properties; if(i==j) continue; // not collide with self
-				  	r = it.r + jt.r; // it.c is the centroid of each county and initial position of circle 
-				  	itx = it.x + it.c[0]; ity = it.y + it.c[1]; 
-				  	jtx = jt.x + jt.c[0]; jty = jt.y + jt.c[1]; 
-				  	// distance between centroid of two circles 
-				  	d = Math.sqrt( (itx - jtx) * (itx - jtx) + (ity - jty) * (ity - jty) ); 
-				  	if(r > d) { 
-					  	// there's a collision if distance is smaller than radius
-						dr = ( r - d ) / ( d * 1 );
-						it.x = it.x + ( itx - jtx ) * dr;
-						it.y = it.y + ( ity - jty ) * dr;
-					}
+	map.selectAll(".node").remove()
+	// force layout, makes circles closer.
+	// This is useful when circle radius changes.
+	var force = d3.layout.force().size([SVG_WIDTH,MAP_HEIGHT]).nodes(states)
+		.charge(-.5)
+		.gravity(0.5)
+		.friction(0.1)
+		.start();
+
+	var node = map.selectAll(".node")
+		.data(force.nodes()).enter()
+		.append("g")
+		.attr("class", "node")
+
+	var bubble = node.append("circle")
+		.attr("r", function(state) { return radiusForFips(state.id); })
+		.attr("cx", function(state) {
+			return centroid(state)[0];
+		})
+		.attr("cy", function(state) {
+			return centroid(state)[1];
+		})
+		.attr("fill", 'none')
+		.attr("stroke", 'gray')
+
+	var bubbleLabel = node.append("text")
+		.attr("x", function(state) {
+			return centroid(state)[0];
+		})
+		.attr("y", function(state) {
+			return centroid(state)[1];
+		})
+		.text(function(state) { return findAbbr(findName(state.id)); })
+		.attr("class", "bubble-label")
+
+
+	bubble.each(function(state) {
+			state.properties.r = radiusForFips(state.id);
+			
+			state.properties.c = centroid(state);
+			state.properties.x = mapCenterX;
+			state.properties.y = mapCenterY;
+			})
+
+	// collision detection, prevents circles from overlapping each other
+	force.on("tick", function(e) {
+		//calculate distances for each node to move
+		for(i = 0 ; i < states.length ; i++) {
+			for(j = 0 ; j < states.length ; j++) { 
+				it = states[i].properties; 
+			  	jt = states[j].properties; if(i==j) continue; // not collide with self
+			  	r = it.r + jt.r; 
+			  	// it.c is the centroid of each county and initial position of circle 
+			  	itx = it.x + it.c[0]; ity = it.y + it.c[1]; 
+			  	jtx = jt.x + jt.c[0]; jty = jt.y + jt.c[1]; 
+			  	// distance between centroid of two circles 
+			  	d = Math.sqrt( (itx - jtx) * (itx - jtx) + (ity - jty) * (ity - jty) ); 
+			  	if(r > d) { 
+				  	// there's a collision if distance is smaller than radius
+					dr = ( r - d ) / ( d * 1 );
+					it.x = it.x + ( itx - jtx ) * dr;
+					it.y = it.y + ( ity - jty ) * dr;
 				}
 			}
-		bubbles
+		}
+		//update position
+		bubble
 			.attr("cx",function(state) { 
 				return state.properties.x + state.properties.c[0] - mapCenterX; })
 			.attr("cy",function(state) { 
-				return state.properties.y + state.properties.c[1] - mapCenterY + 150; });
-		});
+				return state.properties.y + state.properties.c[1] - mapCenterY; })
+		bubbleLabel
+			.attr("x",function(state) { 
+				return state.properties.x + state.properties.c[0] - mapCenterX; })
+			.attr("y",function(state) { 
+				return state.properties.y + state.properties.c[1] - mapCenterY; })			
+	})
 
-		force.start()
+
+
+
+
 
 
 	d3.select('#min')
@@ -339,6 +378,12 @@ var drawNationalNow = function () { drawNational(selectedYear, selectedVaccine);
 drawNationalNow();
 
 
+
+
+
+
+
+
 /**
 d3.selectAll('select').on('change', function() {
 	selectedVaccine = this.value;
@@ -346,17 +391,14 @@ d3.selectAll('select').on('change', function() {
 })
 **/
 
-var setActiveLabel = function(label) {
-	var prevActive = d3.select('text.xlabel.active')
-		.classed("active", false);
-	d3.select(label).classed('active', true);
-}
-
 
 
 //Listener for x axis labels. Change selected year when label clicked.
 d3.selectAll('text.xlabel').on('click', function() {
-	setActiveLabel(this);
+	var prevActive = d3.select('text.xlabel.active')
+		.classed("active", false);
+	d3.select(this).classed('active', true);	
+
 	selectedYear = this.innerHTML;
 	drawNationalNow();
 })

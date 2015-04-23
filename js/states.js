@@ -8,7 +8,7 @@ statesAbbr = [
 	  ["Colorado","CO","Colo.",8],
 	  ["Connecticut","CT","Conn.",9],
 	  ["Delaware","DE","Del.",10],
-	  ["Dist of Columbia","DC","D.C.",11],
+	  ["Dist. of Columbia","DC","D.C.",11],
 	  ["Florida","FL","Fla.",12],
 	  ["Georgia","GA","Ga.",13],
 	  ["Hawaii","HI","Hawaii",15],

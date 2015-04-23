@@ -17,7 +17,7 @@ var trimKeys = function(rows) {
 	})
 }
 
-/** Delete blank rows and non-state, non-'US National' rows **/
+/** Delete blank rows and non-state rows **/
 var trimExcessRows = function(rows) {
 	return rows.filter(function(row) {
 		var name = trimNonAscii(row['Region']);

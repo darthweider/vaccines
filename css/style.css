@@ -65,3 +65,12 @@ svg { border: /*1px solid*/ none; }
 	.graph-line {
 		stroke: #303030; stroke-width: 2; fill: none;
 	}
+
+
+
+	.bubble-label { 
+		font-size: 15;
+		padding: 0; border: none; background: none; outline: none;
+		stroke: #C1C1C1; stroke-width: 0.3;
+		text-anchor: middle; alignment-baseline: middle;	
+	}
