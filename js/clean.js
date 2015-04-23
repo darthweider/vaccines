@@ -21,7 +21,7 @@ var trimKeys = function(rows) {
 var trimExcessRows = function(rows) {
 	return rows.filter(function(row) {
 		var name = trimNonAscii(row['Region']);
-		return name != '' && (findAbbr(name));
+		return name != '' && (nameToAbbr(name));
 	})
 }
 

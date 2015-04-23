@@ -64,7 +64,7 @@ var findFips = function(name) {
 	return fips;
 }
 
-var findAbbr = function(name) {
+var nameToAbbr = function(name) {
 	var abbr = '';
 	statesAbbr.forEach(function(state) {
 		if (state[0] == name) {
@@ -74,7 +74,7 @@ var findAbbr = function(name) {
 	return abbr;
 }
 
-var findName = function(fips) {
+var fipsToName = function(fips) {
 	//fips of 72 or 78 are asking about Peurto Rico and the Virgin Islands; ignore them
 	if (fips == 72 || fips == 78) { return ''; }
 
@@ -86,4 +86,27 @@ var findName = function(fips) {
 	})
 	if (name == '') { console.log('no name for fips ' + fips)};
 	return name;
+}
+
+var fipsToAbbr = function(fips) {
+	//fips of 72 or 78 are asking about Peurto Rico and the Virgin Islands; ignore them
+	if (fips == 72 || fips == 78) { return ''; }
+
+	var abbr = '';
+	statesAbbr.forEach(function(state) {
+		if (state[3] == fips) {
+			abbr = state[1];
+		}
+	})
+	return abbr;
+}
+
+var abbrToName = function(abbr) {
+	var name = '';
+	statesAbbr.forEach(function(state) {
+		if (state[1] == abbr) {
+			name = state[0];
+		}
+	})
+	return name;	
 }

@@ -106,7 +106,7 @@ var minVaxEver = function(vaccine) {
 }
 /**Returns a number**/
 var maxVaxEver = function(vaccine) {
-	return d3.min(maxVaxRatesByYear(vaccine), function(d) {
+	return d3.max(maxVaxRatesByYear(vaccine), function(d) {
 		return d[1];
 	})
 }
@@ -136,7 +136,8 @@ var mapCenterY = svg_height - (MAP_HEIGHT/2) - PADDING,
 	mapCenterX = SVG_WIDTH/2;
 
 var selectedYear = '2013',
-	selectedVaccine = 'MMR';
+	selectedVaccine = 'MMR',
+	selectedState = '';
 
 
 var nationalSvg = d3.select("#national")
@@ -197,42 +198,52 @@ var drawNational = function(year, vaccine) {
 		.attr("y", function(rate) { return yScale(rate); })
 		.classed("ylabel", true)
 		.text(function(rate) { return rate + "%"; });
-
+/** Label for y axis
 	var yAxisNameXPos = originX - LABEL_PADDING*2,
 		yAxisNameYPos = originY - endY;
 	var yAxisName = graph.append("text")
 		.attr("transform", "translate(" + yAxisNameXPos + ", " + yAxisNameYPos + ") rotate(-90)")
 		.attr("class", 'y-axis-name')
 		.text('vaccination rate');
+**/
 
+	/** className should be 'us' or 'state' **/
 	var plotLine = function(vaccine, region, className) {
-		graph.selectAll("circle." + className).remove()
-		var nationalPts = graph.selectAll("circle." + className)
+		graph.selectAll("circle." + className + "-point").remove()
+		var points = graph.selectAll("circle." + className + "-point")
 			.data(vaxRatesByYear(vaccine, region)).enter()
 			.append("circle")
 			.attr("cx", function(d,i) { return xScale(years[i]) })
 			.attr("cy", function(d) { return yScale(d) })
 			.attr("values", function(d,i) { return years[i] })
 			.attr("r", 3)
-			.classed(className, true)
+			.classed(className + "-point", true)
 			.classed("active", function(d,i) { return year[i] == selectedYear; })
 			.attr("innerHTML", function(d, i) { return '' + year[i] });
 
 		var lineFunction = d3.svg.line()
-			.x(function(d, i) { return xScale(years[i]) })
-			.y(function(d) { return yScale(d) })
+			.x(function(d) { return xScale(d[0]) })
+			.y(function(d) { return yScale(d[1]) })
 			.interpolate("linear");
 
-		graph.selectAll("path.graph-line." + className).remove()
+		//only use rates for which there is existing data
+		var vaxRates = function(vaccine, region) {
+			var rates = [];
+			vaxRatesByYear(vaccine, region).forEach(function(rate, i) {
+				if (rate >= minVaxEver(vaccine) && rate <= maxVaxEver(vaccine)) {
+					rates.push([years[i], rate]);
+				}
+			})
+			return rates;
+		}
+		graph.selectAll("path." + className + "-line").remove()
 		var line = graph.append("path")
-			.attr("d", lineFunction(vaxRatesByYear(vaccine, region)))
-			.classed("graph-line", true)
-			.classed(className, true)
+			.attr("d", lineFunction(vaxRates(vaccine, region)))
+			.classed(className + "-line", true)
 	}
 
-
-	var nationalLine = plotLine(vaccine, 'US National', 'us-line');
-
+	plotLine(vaccine, 'US National', 'us');
+	
 
 	d3.json("./data/us-10m.json", function(error, shapes) {
 		var states = topojson.feature(shapes, shapes.objects.states).features;	
@@ -246,7 +257,7 @@ var drawNational = function(year, vaccine) {
 //		.attr("transform", "translate(-50," + mapYStart + ")")
 		.style("fill", function (state) {
 			var stateFips = state.id;
-			var stateName = findName(stateFips);
+			var stateName = fipsToName(stateFips);
 			var stateVaxRate = findVaxRate(stateName, year, vaccine);
 
 
@@ -264,7 +275,7 @@ var drawNational = function(year, vaccine) {
 		.range([2, 25]);
 
 	var radiusForFips = function(fips) {
-		var stateVaxRate = findVaxRate(findName(fips), year, vaccine);
+		var stateVaxRate = findVaxRate(fipsToName(fips), year, vaccine);
 			if (stateVaxRate != '') {
 				return radiusScale(parseInt(stateVaxRate));
 			}
@@ -273,7 +284,7 @@ var drawNational = function(year, vaccine) {
 	}
 
 	var centroid = function(state) {			
-			if (findName(state.id) == '') { return [0,0] }
+			if (fipsToName(state.id) == '') { return [0,0] }
 			else { return path.centroid(state) };
 	}
 
@@ -289,7 +300,9 @@ var drawNational = function(year, vaccine) {
 	var node = map.selectAll(".node")
 		.data(force.nodes()).enter()
 		.append("g")
-		.attr("class", "node")
+		.attr("innerHTML", function(state) { return fipsToAbbr(state.id) })		
+		.attr('class', function(state) { return fipsToAbbr(state.id) })
+		.classed('node', true)
 
 	var bubble = node.append("circle")
 		.attr("r", function(state) { return radiusForFips(state.id); })
@@ -299,8 +312,11 @@ var drawNational = function(year, vaccine) {
 		.attr("cy", function(state) {
 			return centroid(state)[1];
 		})
-		.attr("fill", 'none')
-		.attr("stroke", 'gray')
+		.attr("innerHTML", function(state) { return fipsToAbbr(state.id) })
+		.attr('class', function(state) { return fipsToAbbr(state.id) })
+		.classed("bubble", true)
+
+
 
 	var bubbleLabel = node.append("text")
 		.attr("x", function(state) {
@@ -309,9 +325,9 @@ var drawNational = function(year, vaccine) {
 		.attr("y", function(state) {
 			return centroid(state)[1];
 		})
-		.text(function(state) { return findAbbr(findName(state.id)); })
-		.attr("class", "bubble-label")
-
+		.text(function(state) { return nameToAbbr(fipsToName(state.id)); })
+		.attr('class', function(state) { return fipsToAbbr(state.id) })
+		.classed("bubble-label", true)
 
 	bubble.each(function(state) {
 			state.properties.r = radiusForFips(state.id);
@@ -322,7 +338,7 @@ var drawNational = function(year, vaccine) {
 			})
 
 	// collision detection, prevents circles from overlapping each other
-	force.on("tick", function(e) {
+	force.on("tick", function() {
 		//calculate distances for each node to move
 		for(i = 0 ; i < states.length ; i++) {
 			for(j = 0 ; j < states.length ; j++) { 
@@ -356,9 +372,16 @@ var drawNational = function(year, vaccine) {
 	})
 
 
+	map.selectAll('.node').on('click', function(state) {
+		var prevActive = d3.selectAll('.bubble.active, .bubble-label.active')
+			.classed("active", false);
+		
+		map.selectAll('.' + fipsToAbbr(state.id))
+			.classed("active", true);
 
+		plotLine(vaccine, fipsToName(state.id), 'state');
 
-
+	})
 
 
 	d3.select('#min')
@@ -366,7 +389,15 @@ var drawNational = function(year, vaccine) {
 	d3.select('#max')
 	.text('The highest vaccination rate in ' + year + ' for ' + vaccine + ' was ' + maxVaxRate[1] + ' in ' + maxVaxRate[0]);
 
+
+
+
+
 	})
+
+
+
+
 }
 
 
@@ -376,10 +407,6 @@ var drawNational = function(year, vaccine) {
 var drawNationalNow = function () { drawNational(selectedYear, selectedVaccine); }
 
 drawNationalNow();
-
-
-
-
 
 
 

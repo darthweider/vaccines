@@ -56,17 +56,31 @@ svg { border: /*1px solid*/ none; }
 	}
 
 	.us-point {
-		fill: #C1C1C1;	
-	}
-	.us-point.active {
-		fill: #010101;
+		fill: #303030;	
 	}
 
-	.graph-line {
+	.state-point {
+		fill: #6699FF;
+	}
+
+	path.us-line {
 		stroke: #303030; stroke-width: 2; fill: none;
 	}
 
+	path.state-line {
+		stroke: #6699FF; stroke-width: 2; fill: none;
+	}
 
+	.bubble {
+		stroke: #C1C1C1; 
+		fill: none; 
+	}
+	.node:hover {
+		cursor: pointer;
+	}
+	.bubble.active {
+		stroke: #6699FF; stroke-width: 2;
+	}
 
 	.bubble-label { 
 		font-size: 15;
@@ -74,3 +88,4 @@ svg { border: /*1px solid*/ none; }
 		stroke: #C1C1C1; stroke-width: 0.3;
 		text-anchor: middle; alignment-baseline: middle;	
 	}
+
