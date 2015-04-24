@@ -2,13 +2,13 @@
 <head>
         <!-- LOAD ADOBE TYPE KIT-->
         <script src="//use.typekit.net/pbn8riq.js"></script>
-        <script>try{Typekit.load();}catch(e){}</script>
 		<link href='http://fonts.googleapis.com/css?family=Lato&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
         <!-- LOAD D3 LIBRARY -->
         <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
         <script src="http://d3js.org/topojson.v1.min.js"></script>
         <!--load auxillary scripts-->
 		<script src="js/states.js"></script>
+        <script src="js/lineFunctions.js"></script>
 		<script src="js/clean.js"></script>
 
 		<title>Measles</title>
@@ -22,9 +22,8 @@
 
 <div class="mapContainer">
 	<h4>Vaccination Rates for Measles in the United States</h4>
-    <div id="mapContainer" style="width:100%">
-        <div id="national" style="float:left; width: 70%;"></div>
-        <div id ="description" style="float:left; width:30%">Here is some text.</div>
+    <div id="mapContainer">
+        <div id="national"></div>
     </div>
 <!---	<div>
 	    <select id="vaccine-dropdown" placeholder="1+MMR">

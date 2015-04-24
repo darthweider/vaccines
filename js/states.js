@@ -54,7 +54,7 @@ statesAbbr = [
 	]
 
 
-var findFips = function(name) {
+var nameToFips = function(name) {
 	var fips = 0;
 	statesAbbr.forEach(function(state) {
 		if (state[0] == name) {

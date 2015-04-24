@@ -2,23 +2,24 @@ body {
 	font-family: "Lato",sans-serif; 
 	font-style: normal; 
 	font-weight: 300; 
-	margin: 40px 50px 50px 20px; } 
+	margin: 40px;
+} 
 	h4 { 
 		padding: 0 0 15px 0; margin: 0; 
 		font-weight: 600; font-size: 1.1em; 
 		color: #330000;
 		text-align: center; }
-	.mapContainer {
-		white-space: nowrap;
-	}
 	.mapOptions {
 		display: flex; flex-wrap: nowrap; justify-content: space-around; align-items: center;
 		width: 800px; height: 50px; padding: 0;
 	}
 
 
+
+
 svg { 
-	margin-left: auto; margin-right: auto;
+	display:block;
+	margin-bottom:20;
 	}
 	.axis { 
 		stroke: #757575; stroke-width: 0.5; 
@@ -61,7 +62,10 @@ svg {
 	}
 
 	path.state-line {
-		stroke: #6699FF; stroke-width: 2; fill: none;
+		stroke: #D05050; stroke-width: 2; fill: none; opacity: 0.05;
+	}
+	path.state-line.active {
+		stroke: #D05050; stroke-width: 2; fill: none; opacity: 1;
 	}
 
 	text.us-line-label {
@@ -72,18 +76,18 @@ svg {
 
 	text.state-line-label {
 		alignment-baseline: middle;	
-		fill: #6699FF; stroke-width: 0.3;
+		fill: #D05050; stroke-width: 0.3;
 		font-size: 10; font-weight: 600;
 	}
 
 	.bubble {
-		stroke: #C1C1C1; 
 	}
 	.node:hover {
 		cursor: pointer;
 	}
 	.bubble.active {
-		stroke: #6699FF; stroke-width: 3;
+		stroke: #444444; stroke-width: 3;
+		background: 6px #D05050;
 	}
 
 	.bubble-label { 

@@ -6,8 +6,7 @@ var canInit = false;
 
 var selectedYear = '2013',
 	selectedVaccine = 'MMR',
-	selectedState = '';
-
+	selectedFips = '';
 
 
 /** Make a dictionary for a dataset.
@@ -32,17 +31,17 @@ d3.tsv("./data/us-pop.tsv", function(d) {
 })
 
 
-
-var SVG_WIDTH = Math.max(window.innerWidth - 100 || 1000),
-	SVG_HEIGHT = Math.max(window.innerHeight || 500),
+var SVG_WIDTH = 800,
+	SVG_HEIGHT = 600,
 	LEFT_PADDING = 70, //between svg edge and y-axis line
+	RIGHT_PADDING = 50,
 	LABEL_PADDING = 25, //between axis labels and axis line
 	TOP_PADDING = 15,
 	BETWEEN_PADDING = 50;
 
 var GRAPH_HEIGHT = 0.2 * SVG_HEIGHT,
-	graph_width = SVG_WIDTH - LEFT_PADDING,
-    MAP_HEIGHT = SVG_HEIGHT - GRAPH_HEIGHT - BETWEEN_PADDING;
+	graph_width = SVG_WIDTH - LEFT_PADDING - RIGHT_PADDING,
+    MAP_HEIGHT = SVG_HEIGHT - GRAPH_HEIGHT - BETWEEN_PADDING - TOP_PADDING;
 
 var originX = LEFT_PADDING,
 	originY = TOP_PADDING + GRAPH_HEIGHT,
@@ -50,7 +49,10 @@ var originX = LEFT_PADDING,
 	endY = TOP_PADDING;
 
 var mapCenterY = SVG_HEIGHT - (MAP_HEIGHT/2) - BETWEEN_PADDING,
-	mapCenterX = SVG_WIDTH/3;
+	mapCenterX = SVG_WIDTH/2;
+
+var descriptionTop = SVG_HEIGHT - MAP_HEIGHT,
+	descriptionLeft = SVG_WIDTH / 2;
 
 var nationalSvg = d3.select("#national")
 	.append("svg")
@@ -203,52 +205,83 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 
 	var map = nationalSvg.append("g");
 	// albersUsa projection
-	var projection = d3.geo.albersUsa().translate([mapCenterX, mapCenterY]).scale(1.4*MAP_HEIGHT);
+	var projection = d3.geo.albersUsa().translate([mapCenterX, mapCenterY]).scale(1.6*MAP_HEIGHT);
 	var path = d3.geo.path().projection(projection);
 
 
 
-	var plotLine = function(region, className) {
-		var vaxRates = vaxRatesByYear(region, selectedVaccine);
-
-		graph.selectAll("circle." + className + "-point").remove()
-		var points = graph.selectAll("circle." + className + "-point")
-			.data(vaxRates).enter()
-			.append("circle")
-			.attr("cx", function(d,i) { return xScale(years[i]) })
-			.attr("cy", function(d) { return yScale(d) })
-			.attr("values", function(d,i) { return years[i] })
-			.attr("r", 3)
-			.classed(className + "-point", true)
-
+	/** Add to map of line functions **/
+	var makeLineFunction = function() {
+		
+		var lineFunctions = d3.map();
 
 		var lineFunction = d3.svg.line()
 			.x(function(d) { return xScale(d[0]) })
 			.y(function(d) { return yScale(d[1]) })
 			.interpolate("linear");
 
-		//only use rates for which there is existing data
-		var knownRates = function(region) {
-			var rates = [];
-			vaxRates.forEach(function(rate, i) {
-				if (rate >= minVaxEver(selectedVaccine) && rate <= maxVaxEver(selectedVaccine)) {
-					rates.push([years[i], rate]);
-				}
-			})
-			return rates;
-		}
-		graph.selectAll("path." + className + "-line").remove()
-		var line = graph.append("path")
-			.attr("d", lineFunction(knownRates(region)))
-			.classed(className + "-line", true)
+		statesAbbr.forEach(function(region) {
+			var vaxRates = vaxRatesByYear(region, selectedVaccine);
 
-		graph.selectAll("." + className + "-line-label").remove()
+
+			//only use rates for which there is existing data
+			var knownRates = function(region) {
+				var rates = [];
+				vaxRates.forEach(function(rate, i) {
+					if (rate >= minVaxEver(selectedVaccine) && rate <= maxVaxEver(selectedVaccine)) {
+						rates.push([years[i], rate]);
+					}
+				})
+				return rates;
+			}
+			lineFunctions.set(region, lineFunction(knownRates(region)));
+		})
+
+		return lineFunctions;
+	}
+
+	var plotLine = function(region) {
+		var abbr = nameToAbbr(region);
+		var isNational = region == 'US National';
+
+		d3.selectAll('path.' + abbr).remove();
+
+		var lineFunction = lineFunctions.get(region);
+
+		var line = graph.append("path")
+			.attr("d", lineFunction)
+			.attr("class", function(d) { if (!isNational) return nameToAbbr(region) })
+			.classed('us-line', isNational)
+			.classed('state-line', !isNational)
+			.classed('active', nameToFips(region) == selectedFips && !isNational)
+	}
+
+
+	var plotAllLines = function() {
+		statesAbbr.forEach(function(regionArray) {
+
+			var isNational = regionArray[1] == 'US';
+//			var isSelectedFips = regionArray[3] == selectedFips && !isNational;	
+
+			plotLine(regionArray[0]);
+
+			if (isNational) { label(regionArray[0], 'us-line-label') }
+//			if (isSelectedFips) { label(regionArray[0], 'state-line-label') }
+		})
+	}
+
+
+	/** className may be 'us-line-label' or 'state-line-label' **/
+	var label = function(region, className) {
+
+		graph.selectAll("." + className).remove()
+		
 		var lineLabel = graph.append("text")
-			.classed(className + '-line-label', true)
+			.classed(className, true)
 			.attr('x', xScale('2013') + 10)
 			.attr('y', function(d) {
 				//avoid text collision with label for US National
-				var rate2013 = vaxRates[10],
+				var rate2013 = findVaxRate(region, '2013', selectedVaccine),
 					nationalRate2013 = findVaxRate('US National', '2013', selectedVaccine),
 					rateDifference = rate2013 - nationalRate2013;
 				if (region != 'US National' && rateDifference < 1 && rateDifference > 0) {
@@ -266,6 +299,31 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 			.text(region)
 	}
 
+		
+	plotAllLines();
+
+
+
+
+/**
+		graph.selectAll("circle." + className + "-point").remove()
+		var points = graph.selectAll("circle." + className + "-point")
+			.data(vaxRates).enter()
+			.append("circle")
+			.attr("cx", function(d,i) { return xScale(years[i]) })
+			.attr("cy", function(d) { return yScale(d) })
+			.attr("values", function(d,i) { return years[i] })
+			.attr("r", 3)
+			.classed(className + "-point", true)
+**/
+
+
+/**
+
+**/	
+
+
+
 	var drawMap = function(year) {
 		var minVaxRate = minVaxRatesByYear(selectedVaccine)[years.indexOf(year)];
 		var maxVaxRate = maxVaxRatesByYear(selectedVaccine)[years.indexOf(year)];
@@ -282,7 +340,7 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 			/** Radius scale based on population **/
 			var radiusScale = d3.scale.sqrt()
 				.domain([minVaxEver('Population'), maxVaxEver('Population')])
-				.range([10, 30]);
+				.range([8, 20]);
 
 			var radiusForFips = function(fips, year) {
 				var population = findVaxRate(fipsToName(fips), year, 'Population');
@@ -323,7 +381,7 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 			var bubble = node.append("circle")
 				.attr('class', function(state) { return fipsToAbbr(state.id) })
 				.classed("bubble", true)
-				.classed("active", function(state) { return state.id == selectedState })
+				.classed("active", function(state) { return state.id == selectedFips })
 				//save information into topojson feature properties
 				.attr("r", function(state) { return radiusForFips(state.id, year) })			
 				.attr("fill", function(state) { return colorForFips(state.id, year) })
@@ -338,7 +396,7 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 			var bubbleLabel = node.append("text")
 				.attr('class', function(state) { return fipsToAbbr(state.id) })
 				.classed("bubble-label", true)
-				.classed("active", function(state) { return state.id == selectedState })
+				.classed("active", function(state) { return state.id == selectedFips })
 				.text(function(state) { return nameToAbbr(fipsToName(state.id)); })		
 
 			//draw boxes for Hawaii and Alaska	
@@ -414,15 +472,20 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 
 			//listener: check if bubbles have been clicked
 			map.selectAll('.node').on('click', function(state) {
-				var prevActive = d3.selectAll('.bubble.active, .bubble-label.active')
+				d3.selectAll('.bubble.active, .bubble-label.active, .state-line.active')
 					.classed("active", false);
 				
-				map.selectAll('.' + fipsToAbbr(state.id))
+				d3.selectAll('.' + fipsToAbbr(state.id))
 					.classed("active", true);
 
-				selectedState = state.id;
+	//			console.log(svg.selectAll('.' + fipsToAbbr(state.id)));
 
-				plotLine(fipsToName(state.id), 'state');
+				selectedFips = state.id;
+
+				label(fipsToName(state.id), 'state-line-label');
+				plotLine(fipsToName(state.id));
+
+				console.log(d3.selectAll('path.active'))
 
 			})
 
@@ -445,7 +508,7 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 	}
 
 
-	plotLine('US National', 'us');
+
 	drawMap(selectedYear);
 
 
