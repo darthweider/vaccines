@@ -8,56 +8,76 @@
 <link href='http://fonts.googleapis.com/css?family=Lato&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 <style>
-svg { /*border: solid black 1px;*/ display:block; margin-bottom:20;}
-body {margin: 40px;font-family: "Lato", sans-serif;}
+
+svg { 
+	display:block;
+	margin-bottom:20;
+}
+
+body {
+	margin: 40px;
+	font-family: "Lato", sans-serif;
+}
+
 .d3-tip {
-  line-height: 1;
-  padding: 12px;
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
-  border-radius: 2px;
-  text-align: center;
-  font-size: .9em;
-  font-family: "Lato", sans-serif;
+	line-height: 1;
+	padding: 12px;
+	background: rgba(0, 0, 0, 0.8);
+	color: #fff;
+	border-radius: 2px;
+	text-align: center;
+	font-size: .9em;
+	font-family: "Lato", sans-serif;
 }
 
 /* Creates a small triangle extender for the tooltip */
 .d3-tip:after {
-  box-sizing: border-box;
-  display: inline;
-  font-size: 7px;
-  width: 100%;
-  line-height: 1;
-  color: rgba(0, 0, 0, 0.8);
-  content: "\25BC";
-  position: absolute;
-  text-align: center;
+	box-sizing: border-box;
+	display: inline;
+	font-size: 7px;
+	width: 100%;
+	line-height: 1;
+	color: rgba(0, 0, 0, 0.8);
+	content: "\25BC";
+	position: absolute;
+	text-align: center;
 }
  /* tooltips pointing up*/
 .d3-tip.n:after {
-  margin: -1px 0 0 0;
-  top: 100%;
-  left: 0;
+	margin: -1px 0 0 0;
+	top: 100%;
+	left: 0;
 }
  /* tooltips pointing down */
-  .d3-tip.s:after {
-    content: "\25B2";
-    margin: 0 0 1px 0;
-    top: -8px;
-    left: 0;
-    text-align: center;
-  }
+.d3-tip.s:after {
+	content: "\25B2";
+	margin: 0 0 1px 0;
+	top: -8px;
+	left: 0;
+	text-align: center;
+}
 
 .mapOptions {
-	display: flex; flex-wrap: nowrap; justify-content: space-around; align-items: center;
-	width: 800px; height: 50px; padding: 0;
+	display: flex; 
+	flex-wrap: nowrap; 
+	justify-content: space-around; 
+	align-items: center;
+	width: 61%; 
+	height: 50px; 
+	padding: 0;
 }
 
 .yr:hover{
 	cursor:pointer;
+	font-size: 1.4em;
 }
 
 #years{
+	list-style: none;
+	margin:0 auto;
+}
+
+#names{
 	list-style: none;
 	margin:0 auto;
 }
@@ -66,15 +86,71 @@ body {margin: 40px;font-family: "Lato", sans-serif;}
 	margin:0 auto;
 }
 
-.yr:hover{
-	font-size: 1.4em;
+.dividingLine{
+	height:2px;
+	width:60%;
+	background-color:black;
+	margin: 0 auto;
+	margin-top:30px;
+	margin-bottom:30px;
 }
 
+.explanatoryText{
+	margin:0 auto;
+	width:60%;
+	text-align: justify;
+}
+
+.prettyLink{
+	text-decoration: none;
+	color:#D05050;
+}
+
+.prettyLink:hover{
+	text-decoration: underline;
+}
+
+
+.sectionPadding{
+	margin-bottom:50px;
+}
+
+#bottomPadding{
+	margin-bottom:100px;
+}
+
+h1{
+	text-align: center;
+}
 </style>
 </head>
 <body>
 
-<div id="storiesMap" style="padding-top:200px;margin:0 auto;"></div>
+<div class="dividingLine"></div>
+<div class="explanatoryText">
+	<h1>MEASLES IN THE MODERN ERA</h1>
+	<p style="text-align:center;font-style:italic;font-size:1.2em;">An exploration of measles vaccination, mortality, and <br/>outbreak trends in the United States, 2003-2015.</p>
+	<!--<div>
+		<ul id="names" class="mapOptions">
+			<li>Tai Wei Guo</li>
+			<li>Connor McGinnis</li>
+			<li>Sarah Sinclair</li>
+		</ul>
+	</div>-->
+	
+</div>
+<div class="dividingLine"></div>
+<br/><br/><br/><br/>
+<p style="text-align:center;font-style:italic;font-size:1.2em;">SOMETHING ELSE IS GOING TO GO HERE!!</p>
+<br/><br/><br/><br/>
+<div class="dividingLine"></div>
+<div class="explanatoryText">
+<h2>Vaccination Rates</h2>
+<p>Measles measles measles measles Lorem ipsum dolor sit amet, te vis discere constituam theophrastus, ei veniam postulant ocurreret pri, ne stet vocent audiam has. Ius ea errem placerat sapientem, ius ea summo erroribus assueverit. No eam omnium pertinacia, sea te dicant fierent instructior, in eos suas munere. Pro ignota imperdiet cu, legimus cotidieque et eam. Qui ex altera repudiare deseruisse, has civibus instructior et, nec amet fierent eu. Eum ei vidit mnesarchum, ea assentior ullamcorper usu. Noster tibique accusamus qui ex.
+ </p>
+</div>
+<div class="dividingLine sectionPadding"></div>
+<div id="storiesMap" style="margin:0 auto;"></div>
 <div id="mapYears">
 	<ul id="years" class="mapOptions">
 		<li id="2003" class="yr">2003</li>
@@ -93,7 +169,12 @@ body {margin: 40px;font-family: "Lato", sans-serif;}
 		<li id="viewAll" class="yr" style="font-size:1.4em;">View All</li>
 	</ul>
 </div>
-
+<div class="dividingLine"></div>
+<div class="explanatoryText">
+<h2>Story of an Outbreak</h2>
+<p>Measles outbreaks are more than just a statistic: they're a story. We've curated all of the measles-related articles from the CDC's <a href="http://www.cdc.gov/measles/pubs-mmwr.html#outbreaks" class="prettyLink">Morbidity and Mortality Weekly Report (MMWR)</a> in order to provide a comprehensive visualization of measles outbreaks in the United States since 2003. Hover over each of the outbreaks to get our summarization of the corresponding CDC report. It's interesting that many measles outbreaks are centralized around religious communities! </p>
+</div>
+<div class="dividingLine" id="bottomPadding"></div>
 
 <script> 
 
