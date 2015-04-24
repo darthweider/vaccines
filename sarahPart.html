@@ -263,14 +263,14 @@ d3.json("data/stories.json", function(error, data) {
 		var clicked = $(this);
 		var yrVal = clicked[0].innerHTML;
 		circles.style("opacity", function(d){
-			if(d.Year<=yrVal || yrVal=="View All"){
+			if(d.Year==yrVal || yrVal=="View All"){
 				return .5;
 			}else{
 				return 0;
 			}	
 		}).on("mouseover", function(d){
 			mapSVG.call(tip);
-			if (d.Year <= yrVal || yrVal=="View All"){return tip.show(d);}
+			if (d.Year == yrVal || yrVal=="View All"){return tip.show(d);}
 			else{return tip.hide(d);}
 		});
 	});
