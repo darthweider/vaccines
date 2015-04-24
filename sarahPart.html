@@ -125,6 +125,30 @@ h1{
 .yr{
 	font-size:1.2em;
 }
+
+#buttonList{
+	margin:0 auto;
+}
+
+button {
+  border: 2px solid black;
+  background: white;
+  padding: 11px 22px;
+  color: black;
+  font-size: 22px;
+  font-family: "Lato", sans-serif;
+  text-decoration: none;
+  vertical-align: middle;
+  margin:6px;
+}
+button:hover {
+  background: #d3d3d3;
+}
+
+button:focus {
+	outline:none;
+}
+
 </style>
 </head>
 <body>
@@ -143,9 +167,15 @@ h1{
 	
 </div>
 <div class="dividingLine"></div>
-<br/><br/><br/><br/>
-<p style="text-align:center;font-style:italic;font-size:1.2em;">CONNOR'S PORTION HERE</p>
-<br/><br/><br/><br/>
+<div id="buttonList" class="mapOptions">
+<button type="button" class="button">1980</button>
+<button type="button" class="button">1990</button>
+<button type="button" class="button">2000</button>
+<button type="button" class="button">2013</button>
+<button type="button" class="button">2015</button>
+</div>
+<div id="deathText"></div>
+
 <div class="dividingLine"></div>
 <div class="explanatoryText">
 <h2>Measles Mortality</h2>
@@ -193,10 +223,7 @@ h1{
 
 <script> 
 
-//select map labels
-// $(this).css
-
-
+// Map of Outbreaks Portion
 var STORY_MAP_HEIGHT = 550,
 	STORY_MAP_WIDTH = 900;
 
@@ -300,6 +327,37 @@ d3.json("data/stories.json", function(error, data) {
 
 }) 
 })
+
+
+/*Death Counter Portion */
+deathDict = {1980: 2600000,
+            1990: 872000,
+            2000: 544200,
+            2013: 145700,
+            2015: 27200,
+          }
+
+function DeathCounter(){
+var d = new Date(), e = new Date(d);
+    var ms = e - d.setHours(0,0,0,0);
+    var s = ms/1000;
+    var deaths = (Math.round(s/2880)).toString();
+    document.getElementById("deaths").innerHTML = deaths.concat(" deaths today from measles.");
+}
+
+$(".button").click(function(){
+	var clicked = $(this);
+	var yrVal = clicked[0].innerHTML;
+	var deathCount = deathDict[Number(yrVal)];
+	var textString = "";
+	if(yrVal == 2015){textString+="By the end of 2015, the World Health Organization predicts there will be ";}
+	else{textString+="In "+yrVal+", there were ";}
+	textString+=deathCount;
+	textString+=" deaths from measles.";
+	console.log(textString);
+	$("#deathText").innerHTML = textString;
+
+});
 
 
 
