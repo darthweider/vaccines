@@ -32,12 +32,12 @@ d3.tsv("./data/us-pop.tsv", function(d) {
 
 
 var SVG_WIDTH = 800,
-	SVG_HEIGHT = 600,
+	SVG_HEIGHT = 500,
 	LEFT_PADDING = 70, //between svg edge and y-axis line
 	RIGHT_PADDING = 50,
 	LABEL_PADDING = 25, //between axis labels and axis line
 	TOP_PADDING = 15,
-	BETWEEN_PADDING = 50;
+	BETWEEN_PADDING = 30;
 
 var GRAPH_HEIGHT = 0.2 * SVG_HEIGHT,
 	graph_width = SVG_WIDTH - LEFT_PADDING - RIGHT_PADDING,
@@ -48,11 +48,11 @@ var originX = LEFT_PADDING,
 	endX = LEFT_PADDING + graph_width,
 	endY = TOP_PADDING;
 
-var mapCenterY = SVG_HEIGHT - (MAP_HEIGHT/2) - BETWEEN_PADDING,
+var mapCenterY = SVG_HEIGHT - (MAP_HEIGHT/2),
 	mapCenterX = SVG_WIDTH/2;
 
-var descriptionTop = SVG_HEIGHT - MAP_HEIGHT,
-	descriptionLeft = SVG_WIDTH / 2;
+
+
 
 var nationalSvg = d3.select("#national")
 	.append("svg")
@@ -205,7 +205,7 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 
 	var map = nationalSvg.append("g");
 	// albersUsa projection
-	var projection = d3.geo.albersUsa().translate([mapCenterX, mapCenterY]).scale(1.6*MAP_HEIGHT);
+	var projection = d3.geo.albersUsa().translate([mapCenterX, mapCenterY]).scale(2*MAP_HEIGHT);
 	var path = d3.geo.path().projection(projection);
 
 

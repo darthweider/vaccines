@@ -8,18 +8,155 @@ body {
 		padding: 0 0 15px 0; margin: 0; 
 		font-weight: 600; font-size: 1.1em; 
 		color: #330000;
-		text-align: center; }
-	.mapOptions {
-		display: flex; flex-wrap: nowrap; justify-content: space-around; align-items: center;
-		width: 800px; height: 50px; padding: 0;
+		text-align: center; 
 	}
 
 
 
+.d3-tip {
+	line-height: 1;
+	padding: 12px;
+	background: rgba(0, 0, 0, 0.8);
+	color: #fff;
+	border-radius: 2px;
+	text-align: center;
+	font-size: .9em;
+	font-family: "Lato", sans-serif;
+}
+
+	/* Creates a small triangle extender for the tooltip */
+	.d3-tip:after {
+		box-sizing: border-box;
+		display: inline;
+		font-size: 7px;
+		width: 100%;
+		line-height: 1;
+		color: rgba(0, 0, 0, 0.8);
+		content: "\25BC";
+		position: absolute;
+		text-align: center;
+	}
+	 /* tooltips pointing up*/
+	.d3-tip.n:after {
+		margin: -1px 0 0 0;
+		top: 100%;
+		left: 0;
+	}
+	 /* tooltips pointing down */
+	.d3-tip.s:after {
+		content: "\25B2";
+		margin: 0 0 1px 0;
+		top: -8px;
+		left: 0;
+		text-align: center;
+	}
+
+.mapOptions {
+	display: flex; 
+	flex-wrap: nowrap; 
+	justify-content: space-around; 
+	align-items: center;
+	width: 61%; 
+	height: 50px; 
+	padding: 0;
+}
+
+.yr:hover{
+	cursor:pointer;
+}
+
+#years{
+	list-style: none;
+	margin:0 auto;
+}
+
+#names{
+	list-style: none;
+	margin:0 auto;
+}
+
+.mapYears{
+	margin:0 auto;
+}
+
+.dividingLine{
+	height:2px;
+	width:60%;
+	background-color:black;
+	margin: 0 auto;
+	margin-top:30px;
+	margin-bottom:30px;
+}
+
+.explanatoryText{
+	margin:0 auto;
+	width:60%;
+	text-align: justify;
+}
+
+.prettyLink{
+	text-decoration: none;
+	color:#D05050;
+}
+
+.prettyLink:hover{
+	text-decoration: underline;
+}
+
+
+.sectionPadding{
+	margin-bottom:50px;
+}
+
+#bottomPadding{
+	margin-bottom:100px;
+}
+
+h1{
+	text-align: center;
+}
+
+.yr{
+	font-size:1.2em;
+}
+
+#buttonList{
+	margin:0 auto;
+}
+
+button {
+  border: 2px solid black;
+  background: white;
+  padding: 11px 22px;
+  color: black;
+  font-size: 22px;
+  font-family: "Lato", sans-serif;
+  text-decoration: none;
+  vertical-align: middle;
+  margin:6px;
+}
+button:hover {
+  background: #d3d3d3;
+}
+
+button:focus {
+	outline:none;
+}
+
+
+
+
+
+
+
+
+#national {
+	margin:0 auto;
+}
 
 svg { 
+	margin:0 auto;
 	display:block;
-	margin-bottom:20;
 	}
 	.axis { 
 		stroke: #757575; stroke-width: 0.5; 
