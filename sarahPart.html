@@ -33,12 +33,20 @@ body {margin: 40px;font-family: "Lato", sans-serif;}
   position: absolute;
   text-align: center;
 }
-
+ /* tooltips pointing up*/
 .d3-tip.n:after {
   margin: -1px 0 0 0;
   top: 100%;
   left: 0;
 }
+ /* tooltips pointing down */
+  .d3-tip.s:after {
+    content: "\25B2";
+    margin: 0 0 1px 0;
+    top: -8px;
+    left: 0;
+    text-align: center;
+  }
 
 .mapOptions {
 	display: flex; flex-wrap: nowrap; justify-content: space-around; align-items: center;
@@ -82,6 +90,7 @@ body {margin: 40px;font-family: "Lato", sans-serif;}
 		<li id="2013" class="yr">2013</li>
 		<li id="2014" class="yr">2014</li>
 		<li id="2015" class="yr">2015</li>
+		<li id="viewAll" class="yr" style="font-size:1.4em;">View All</li>
 	</ul>
 </div>
 
@@ -112,7 +121,10 @@ var path = d3.geo.path().projection(projection);
 
 var tip = d3.tip()
   .attr('class', 'd3-tip')
-  .offset([-10, 0])
+  .offset(function(d){if(d.Latitude<40){return [-10, 0];}else{return [10,0];}})
+  .direction(function(d){
+  	if(d.Latitude>40){return 's';}else{return 'n';}
+  })
   .html(function(d) {
   	var listOfWords = d.Story.split(" ");
   	var accString = "<br/><br/>";
@@ -170,14 +182,14 @@ d3.json("data/stories.json", function(error, data) {
 		var clicked = $(this);
 		var yrVal = clicked[0].innerHTML;
 		circles.style("opacity", function(d){
-			if(d.Year==yrVal){
+			if(d.Year<=yrVal || yrVal=="View All"){
 				return .5;
 			}else{
 				return 0;
 			}	
 		}).on("mouseover", function(d){
 			mapSVG.call(tip);
-			if (d.Year == yrVal){return tip.show(d);}
+			if (d.Year <= yrVal || yrVal=="View All"){return tip.show(d);}
 			else{return tip.hide(d);}
 		});
 	});
