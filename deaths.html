@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+</head>
+<title>Measles Deaths</title>
+<style>
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  margin-left:40px;
+  font-weight: 200;
+  font-size: 14px;
+}
+text {
+  cursor: default;
+}
+h1 {
+  font-weight: 400;
+}
+text {
+  font-size: 10px;
+}
+button {
+  border-top: 1px solid #ffffff;
+  background: #ffffff;
+  padding: 11px 22px;
+  -webkit-border-radius: 8px;
+  -moz-border-radius: 8px;
+  border-radius: 8px;
+  -webkit-box-shadow: rgba(0,0,0,1) 0 1px 0;
+  -moz-box-shadow: rgba(0,0,0,1) 0 1px 0;
+  box-shadow: rgba(0,0,0,1) 0 1px 0;
+  text-shadow: rgba(0,0,0,.4) 0 1px 0;
+  color: #000000;
+  font-size: 22px;
+  font-family: Georgia, serif;
+  text-decoration: none;
+  vertical-align: middle;
+}
+button:hover {
+  border-top-color: #e8e8e8;
+  background: #e8e8e8;
+  color: #4f434f;
+}
+button:active {
+  border-top-color: #ffffff;
+  background: #ffffff;
+}
+/*code above from https://css-tricks.com/examples/ButtonMaker/# */
+
+</style>
+
+<h1>Measles Deaths Per Year</h1>
+
+<i>Click different years to see how measles death rates have changed over time.</i></p>
+
+<button type="button" class="#button" onclick="y1980()">1980</button>
+<button type="button" onclick="y2000()">2000</button>
+<button type="button" onclick="y2013()">2013</button>
+<br>
+
+<h2 id="year">in 1980, there were</h2>
+<h1 id="rate1">2,600,000 measles deaths</h1>
+<p>That's</p>
+<h3 id="rate2">7,120 per day</h3>
+<h3 id="rate3">300 per hour</h3>
+
+<!-- Place this tag in your head or just before your close body tag. -->
+<script type="text/javascript" src="https://apis.google.com/js/platform.js"></script>
+
+<br>
+
+
+<script>
+
+document.getElementById("slider-time").onchange = function() {year()};
+
+var slider = document.getElementById("slider-time");
+
+function y2013() {
+    document.getElementById("year").innerHTML = "in 2013, there were";
+    document.getElementById("rate1").innerHTML = "145,700 measles deaths";
+    document.getElementById("rate2").innerHTML = "400 per day";
+    document.getElementById("rate3").innerHTML = "16 per hour<br><br>Down 94% from 1980!";
+  }
+function y2000() {
+    document.getElementById("year").innerHTML = "in 2000, there were";
+    document.getElementById("rate1").innerHTML = "544,200 measles deaths";
+    document.getElementById("rate2").innerHTML = "1,490 per day";
+    document.getElementById("rate3").innerHTML = "62 per hour";
+  }
+function y1980() {
+    document.getElementById("year").innerHTML = "in 1980, there were";
+    document.getElementById("rate1").innerHTML = "2,600,000 measles deaths";
+    document.getElementById("rate2").innerHTML = "7,120 per day";
+    document.getElementById("rate3").innerHTML = "300 per hour";
+  }
+
+</script>
+
+</body>
+</html>
