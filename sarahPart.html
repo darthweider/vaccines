@@ -69,7 +69,6 @@ body {
 
 .yr:hover{
 	cursor:pointer;
-	font-size: 1.4em;
 }
 
 #years{
@@ -122,6 +121,10 @@ body {
 h1{
 	text-align: center;
 }
+
+.yr{
+	font-size:1.2em;
+}
 </style>
 </head>
 <body>
@@ -141,13 +144,25 @@ h1{
 </div>
 <div class="dividingLine"></div>
 <br/><br/><br/><br/>
+<p style="text-align:center;font-style:italic;font-size:1.2em;">CONNOR'S PORTION HERE</p>
+<br/><br/><br/><br/>
+<div class="dividingLine"></div>
+<div class="explanatoryText">
+<h2>Measles Mortality</h2>
+<p>
+	Measles was officially declared eliminated from the United States in 2000 due to the widespread success of the measles vaccine. In many countries around the world, however, measles still represents a serious problem. According to the World Health Organization, <a href="http://www.who.int/mediacentre/factsheets/fs286/en/" class="prettyLink">deaths worldwide associated with the disease</a> have dropped significantly in recent years, but global mortality rates give us a sobering perspective into what can be a highly deadly disease.  
+ </p>
+</div>
+<div class="dividingLine sectionPadding"></div>
+
+<br/><br/><br/><br/>
 <p style="text-align:center;font-style:italic;font-size:1.2em;">SOMETHING ELSE IS GOING TO GO HERE!!</p>
 <br/><br/><br/><br/>
 <div class="dividingLine"></div>
 <div class="explanatoryText">
 <h2>Vaccination Rates</h2>
-<p>Measles measles measles measles Lorem ipsum dolor sit amet, te vis discere constituam theophrastus, ei veniam postulant ocurreret pri, ne stet vocent audiam has. Ius ea errem placerat sapientem, ius ea summo erroribus assueverit. No eam omnium pertinacia, sea te dicant fierent instructior, in eos suas munere. Pro ignota imperdiet cu, legimus cotidieque et eam. Qui ex altera repudiare deseruisse, has civibus instructior et, nec amet fierent eu. Eum ei vidit mnesarchum, ea assentior ullamcorper usu. Noster tibique accusamus qui ex.
- </p>
+<p>The MMR vaccine is used to prevent measles, mumps, and rubella, and is generally first administered to children at the age of 12-15 months. Here, we sampled data from the <a href="http://www.cdc.gov/vaccines/imz-managers/coverage/nis/child/index.html" class="prettyLink">National Immunization Survey (NIS)</a> to understand the vaccination coverage of children 19-36 months in the United States, who are expected to have already received their first dose. Herd immunity, the phenomenon by which the community has enough immune indiviudals to resist infection, generally requires 90-95% vaccination. National media buzz says that personal belief exemptions to vaccination are becoming more common, and challenging herd immunity. What do you think?
+</p>
 </div>
 <div class="dividingLine sectionPadding"></div>
 <div id="storiesMap" style="margin:0 auto;"></div>
@@ -165,14 +180,14 @@ h1{
 		<li id="2012" class="yr">2012</li>
 		<li id="2013" class="yr">2013</li>
 		<li id="2014" class="yr">2014</li>
-		<li id="2015" class="yr">2015</li>
-		<li id="viewAll" class="yr" style="font-size:1.4em;">View All</li>
+		<li id="2015" class="yr" style="font-size:2.1em;">2015</li>
+		<!--<li id="viewAll" class="yr" style="font-size:1.4em;">View All</li>-->
 	</ul>
 </div>
 <div class="dividingLine"></div>
 <div class="explanatoryText">
 <h2>Story of an Outbreak</h2>
-<p>Measles outbreaks are more than just a statistic: they're a story. We've curated all of the measles-related articles from the CDC's <a href="http://www.cdc.gov/measles/pubs-mmwr.html#outbreaks" class="prettyLink">Morbidity and Mortality Weekly Report (MMWR)</a> in order to provide a comprehensive visualization of measles outbreaks in the United States since 2003. Hover over each of the outbreaks to get our summarization of the corresponding CDC report. It's interesting that many measles outbreaks are centralized around religious communities! </p>
+<p>Measles outbreaks are more than just a statistic: they're a story. We've curated all of the measles-related articles from the CDC's <a href="http://www.cdc.gov/measles/pubs-mmwr.html#outbreaks" class="prettyLink">Morbidity and Mortality Weekly Report (MMWR)</a> in order to provide a comprehensive visualization of measles outbreaks in the United States since 2003. Hover over each of the outbreaks to get our summarization of the corresponding CDC report. It's interesting that many measles outbreaks are centralized around religious communities! Note, too, that each outbreak is tied to a particular location abroad: with measles officially declared eliminated from the United States, new cases must be brought in from overseas. </p>
 </div>
 <div class="dividingLine" id="bottomPadding"></div>
 
@@ -258,23 +273,29 @@ d3.json("data/stories.json", function(error, data) {
       		.on('mouseout', tip.hide);
 
 	$(".yr").click(function(){
-		$(".yr").css("font-size","");
-		$(this).css("font-size", "1.4em");
+		//$(".yr").css("font-size","");
+		//$(this).css("font-size", "1.6em");
 		var clicked = $(this);
 		var yrVal = clicked[0].innerHTML;
-		circles.style("opacity", function(d){
-			if(d.Year==yrVal || yrVal=="View All"){
+		$(".yr").css("font-size",function(p){
+			v = $(".yr")[p];
+			if(v.innerHTML< yrVal){return "1.2em";}
+			else if(v.innerHTML == yrVal){return "2.1em";}
+			else{return ".9em";}
+		});
+		circles.transition().style("opacity", function(d){
+			if(d.Year<=yrVal || yrVal=="View All"){
 				return .5;
 			}else{
 				return 0;
 			}	
-		}).on("mouseover", function(d){
+		});
+		circles.on("mouseover", function(d){
 			mapSVG.call(tip);
-			if (d.Year == yrVal || yrVal=="View All"){return tip.show(d);}
+			if (d.Year <= yrVal || yrVal=="View All"){return tip.show(d);}
 			else{return tip.hide(d);}
 		});
 	});
-
 
 
 }) 
