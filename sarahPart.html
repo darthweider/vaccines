@@ -58,6 +58,10 @@ body {margin: 40px;font-family: "Lato", sans-serif;}
 	margin:0 auto;
 }
 
+.yr:hover{
+	font-size: 1.4em;
+}
+
 </style>
 </head>
 <body>
@@ -71,8 +75,13 @@ body {margin: 40px;font-family: "Lato", sans-serif;}
 		<li id="2006" class="yr">2006</li>
 		<li id="2007" class="yr">2007</li>
 		<li id="2008" class="yr">2008</li>
-		<li id="2009" class="yr">2007</li>
-		<li id="2010" class="yr">2008</li>
+		<li id="2009" class="yr">2009</li>
+		<li id="2010" class="yr">2010</li>
+		<li id="2011" class="yr">2011</li>
+		<li id="2012" class="yr">2012</li>
+		<li id="2013" class="yr">2013</li>
+		<li id="2014" class="yr">2014</li>
+		<li id="2015" class="yr">2015</li>
 	</ul>
 </div>
 
@@ -154,7 +163,31 @@ d3.json("data/stories.json", function(error, data) {
 			.style("opacity", 0.5)
 			.on('mouseover', tip.show)
       		.on('mouseout', tip.hide);
+
+	$(".yr").click(function(){
+		$(".yr").css("font-size","");
+		$(this).css("font-size", "1.4em");
+		var clicked = $(this);
+		var yrVal = clicked[0].innerHTML;
+		circles.style("opacity", function(d){
+			if(d.Year==yrVal){
+				return .5;
+			}else{
+				return 0;
+			}	
+		}).on("mouseover", function(d){
+			mapSVG.call(tip);
+			if (d.Year == yrVal){return tip.show(d);}
+			else{return tip.hide(d);}
+		});
 	});
-});
+
+
+
+}) 
+})
+
+
+
 
 </script>
