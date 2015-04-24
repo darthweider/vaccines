@@ -6,7 +6,7 @@ var canInit = false;
 
 var selectedYear = '2013',
 	selectedVaccine = 'MMR',
-	selectedFips = '';
+	selectedFips = '36';
 
 
 /** Make a dictionary for a dataset.
@@ -261,12 +261,12 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 		statesAbbr.forEach(function(regionArray) {
 
 			var isNational = regionArray[1] == 'US';
-//			var isSelectedFips = regionArray[3] == selectedFips && !isNational;	
+			var isSelectedFips = regionArray[3] == selectedFips && !isNational;	
 
 			plotLine(regionArray[0]);
 
 			if (isNational) { label(regionArray[0], 'us-line-label') }
-//			if (isSelectedFips) { label(regionArray[0], 'state-line-label') }
+			if (isSelectedFips) { label(regionArray[0], 'state-line-label') }
 		})
 	}
 
@@ -398,6 +398,10 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 				.classed("bubble-label", true)
 				.classed("active", function(state) { return state.id == selectedFips })
 				.text(function(state) { return nameToAbbr(fipsToName(state.id)); })		
+
+
+			map.selectAll('.HI, .AK')
+				.attr("transform", "translate(-100, -10)")
 
 			//draw boxes for Hawaii and Alaska	
 			map.selectAll('rect.non-continental').remove();

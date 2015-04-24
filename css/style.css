@@ -86,18 +86,20 @@ svg {
 		cursor: pointer;
 	}
 	.bubble.active {
-		stroke: #444444; stroke-width: 3;
-		background: 6px #D05050;
+		fill: black; 
 	}
 
 	.bubble-label { 
 		font-size: 10;
 		padding: 0; border: none; background: none; outline: none;
-		stroke: #000000; stroke-width: 0.3;
+		fill: #000000;
 		text-anchor: middle; alignment-baseline: middle;	
+	}
+	.bubble-label.active {
+		fill: #FFFFFF;
 	}
 
 	rect.non-continental {
 		fill: none;
-		stroke: #757575; stroke-width: 0.5;
+		stroke: #FFFFFF; stroke-width: 0.5;
 	}
