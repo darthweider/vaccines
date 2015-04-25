@@ -135,9 +135,6 @@ button {
   vertical-align: middle;
   margin:6px;
 }
-button:hover {
-  background: #d3d3d3;
-}
 
 button:focus {
 	outline:none;
@@ -191,7 +188,7 @@ svg {
 	}
 
 	.state-point {
-		fill: #6699FF;
+		fill: #D05050;
 	}
 
 	path.us-line {
