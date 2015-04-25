@@ -235,5 +235,5 @@ svg {
 
 	rect.non-continental {
 		fill: none;
-		stroke: #FFFFFF; stroke-width: 0.5;
+		stroke: none; stroke-width: 0.5;
 	}
