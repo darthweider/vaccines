@@ -252,6 +252,11 @@ deathDict = {1980: 2600000,
             2000: 544200,
             2013: 145700,
             2015: 27200};
+//enter data into the svg men
+var men= d3.selectAll(".man")[0];
+for(var i=0;i<90;i++){
+    men[i].__data__ = {"id":i};
+}
 
 var timerUpdate;
 
@@ -294,6 +299,12 @@ function setUpDeathText(yrVal){
     $("#deathText")[0].innerHTML += mathString + timerString;
     selectedYear = yrVal;
 
+    var manSize = 30000;
+    d3.selectAll(".man").style("fill", function(d){
+       if(d.id<Math.round(deathCount/manSize)){return "#D05050";} //each man represents 30,000 people
+       else{return "gray";}
+    })
+
     timerUpdate =setInterval(function(){
         var deadPeople = deathCounter(deathHour);
         $("#theTimerSpan")[0].innerHTML = deadPeople;
@@ -312,7 +323,7 @@ $(".button").click(function(){
 });
 
 
-var men = d3.selectAll(".man")[0];
+
 
 
 </script>
