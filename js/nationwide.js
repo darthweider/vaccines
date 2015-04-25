@@ -19,7 +19,7 @@ var makeLookup = function(dataset) {
 d3.csv("./data/mmr_only.csv", function(d) {
 	var mmrData = cleanData(d);
 //	console.log(mmrData);
-	data['MMR'] = {array: mmrData, lookup: makeLookup(mmrData)}
+	data['MMR'] = {array: mmrData, lookup: makeLookup(mmrData) }
 	if (canInit) { init(); }	
 	else { canInit = true; }
 })
@@ -30,6 +30,7 @@ d3.tsv("./data/us-pop.tsv", function(d) {
 	if (canInit) { init() }
 	else { canInit = true }
 })
+
 
 
 var SVG_WIDTH = 900,
@@ -104,10 +105,7 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 			var lookup = data[vaccine]['lookup'];
 			return lookup.get(region + ' ' + year).VaccinationRate;
 		}
-		catch(err)
-			{ 	//console.log('couldnt find vax rate for ' + region) 
-				return '';
-		}
+		catch(err) { return ''; }
 	}
 
 	/** Returns the region and % of the lowest vaccination rate in a given year.
@@ -131,6 +129,7 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 	Note that both a dataset and its corresponding dictionary must be inputted. **/
 	var findMaxVaxRate = function(year, vaccine) {
 		var dataset = data[vaccine]['array'];
+
 
 		return dataset.reduce(function(prev, curr, i, a) {
 			var currRegion = curr.Region;
@@ -179,12 +178,15 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 	}
 	/**************************************************************************************/
 
+	var min = minVaxEver(selectedVaccine),
+		max = maxVaxEver(selectedVaccine);
+
 	var yScale = d3.scale.linear()
-		.domain([minVaxEver(selectedVaccine), maxVaxEver(selectedVaccine)])
+		.domain([min, max])
 		.range([originY, endY])
 		.nice();
 	var colorScale = d3.scale.linear()
-		.domain([minVaxEver(selectedVaccine), maxVaxEver(selectedVaccine)])
+		.domain([min, max])
 		.range(['maroon', 'white']);
 
 
@@ -216,37 +218,25 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 
 	/** Add to map of line functions **/
 	var makeLineFunction = function() {
-		
 		var lineFunctions = d3.map();
 
 		var lineFunction = d3.svg.line()
-			.x(function(d) { return xScale(d[0]) })
-			.y(function(d) { return yScale(d[1]) })
+			.defined(function(d) {  return d >= min && d <= max })
+			.x(function(d, i) { return xScale(years[i]) })
+			.y(function(d) { return yScale(d) })
 			.interpolate("linear");
 
 
 		statesAbbr.forEach(function(regionArray) {
 			var region = regionArray[0];
-
 			var vaxRates = vaxRatesByYear(region, selectedVaccine);
 
-
-			//only use rates for which there is existing data
-			var knownRates = function(region) {
-				var rates = [];
-				vaxRates.forEach(function(rate, i) {
-					if (rate >= minVaxEver(selectedVaccine) && rate <= maxVaxEver(selectedVaccine)) {
-						rates.push([years[i], rate]);
-					}
-				})
-				return rates;
-			}
-			lineFunctions.set(region, lineFunction(knownRates(region)));
+			lineFunctions.set(region, lineFunction(vaxRates)); 
 		})
 
 		return lineFunctions;
 	}
-//	console.log(JSON.stringify(makeLineFunction()))
+	console.log(JSON.stringify(makeLineFunction()))
 
 	var plotLine = function(region) {
 		var abbr = nameToAbbr(region);
@@ -257,7 +247,7 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 
 		d3.selectAll('path.' + abbr).remove();
 
-		var lineFunction = lineFunctions.get(region);
+		var lineFunction = makeLineFunction().get(region);
 
 		var line = graph.append("path")
 			.attr("d", lineFunction)
@@ -465,9 +455,6 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 
 					bubble
 						.attr("cx",function(state) { 
-			//				console.log(state.properties.x)
-			//				console.log(state.properties.c[0])
-			//				console.log(state.properties.x + state.properties.c[0] - mapCenterX)
 							return state.properties.x + state.properties.c[0] - mapCenterX; })
 						.attr("cy",function(state) { 
 							return state.properties.y + state.properties.c[1] - mapCenterY; })
@@ -483,8 +470,8 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 
 			var updateBubbles = function(yr) {
 				bubble
-					.transition()
 					.attr("r", function(state) { return state.properties.r })			
+					.transition()
 					.attr("fill", function(state) { return colorForFips(state.id, yr) })
 			}
 
@@ -502,15 +489,10 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 				d3.selectAll('.' + fipsToAbbr(state.id))
 					.classed("active", true);
 
-	//			console.log(svg.selectAll('.' + fipsToAbbr(state.id)));
-
 				selectedFips = state.id;
 
 				label(fipsToName(state.id), 'state-line-label');
 				plotLine(fipsToName(state.id));
-
-				console.log(d3.selectAll('path.active'))
-
 			})
 
 				//Listener for x axis labels. Change selected year when label clicked.
@@ -531,18 +513,6 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 		})
 	}
 
-
-
 	drawMap(selectedYear);
-
-
-
-
-	/**
-	d3.selectAll('select').on('change', function() {
-		selectedVaccine = this.value;
-		drawNationalNow();
-	})
-	**/
 	
 }
