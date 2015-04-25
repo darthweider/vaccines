@@ -85,10 +85,15 @@ $("#lotsOfLittleMen")[0].innerHTML = manString;
 <button type="button" class="button">1980</button>
 <button type="button" class="button">1990</button>
 <button type="button" class="button">2000</button>
-<button type="button" class="button">2013</button>
-<button type="button" class="button" style="background:#d3d3d3">2015</button>
+<button type="button" class="button" style="background:#d3d3d3">2013</button>
+<button type="button" class="button">2015</button>
 </div>
-<div id="deathText"></div>
+<div id="deathText"></div><br/>
+<div style="margin:0 auto;text-align:center;vertical-align:middle;">
+<svg class="man" x="0px" y="0px" width="38px" height="38px" viewBox="5.0 0.0 100.0 135.0" enable-background="new 0 0 100 100" xml:space="preserve" style="margin:0 auto;vertical-align:middle;"><circle cx="50" cy="11.705" r="11.705" fill="#d05050"/><path d="M66.789,57.198c2.449,0,4.055-2.856,3.569-6.347l-2.441-17.534c-0.486-3.491-3.768-6.347-7.292-6.347H39.374  c-3.524,0-6.806,2.856-7.292,6.347l-2.44,17.534c-0.486,3.491,1.12,6.347,3.569,6.347s4.667,2.876,4.929,6.391l2.242,30.021  c0.262,3.515,3.361,6.391,6.885,6.391h5.467c3.524,0,6.623-2.876,6.885-6.391l2.24-30.021C62.121,60.074,64.34,57.198,66.789,57.198  z" fill="#d05050"/></svg>
+
+<div style="display:inline-block; text-align:center;vertical-align:middle;margin-top:-10px;color:gray">= 30,000 people dead. Backdrop is total worldwide measles deaths in 1980.</div>
+</div>
 
 <div class="dividingLine"></div>
 <div class="explanatoryText">
@@ -260,7 +265,7 @@ for(var i=0;i<90;i++){
 
 var timerUpdate;
 
-var selectedYear = 2015;
+var selectedYear = 2013;
 setUpDeathText(selectedYear);
 
 
@@ -295,7 +300,7 @@ function setUpDeathText(yrVal){
     var deathHour = Math.floor(deathCount/(365*24));
 
     var mathString = "<p style='margin-top:-10px;'><i>That's " + deathDay +  " per day and " + deathHour + " per hour.</i></p>";
-    var timerString = "<p><i>At this mortality rate, <span id='theTimerSpan' class='deathDramatic'>"+deathCounter(deathHour) + "</span> people would have died of measles since midnight today.</i></p>";
+    var timerString = "<p><i>At this mortality rate, <span id='theTimerSpan' class='deathDramatic'>"+deathCounter(deathHour) + "</span> people would have died of measles since midnight.</i></p>";
     $("#deathText")[0].innerHTML += mathString + timerString;
     selectedYear = yrVal;
 
