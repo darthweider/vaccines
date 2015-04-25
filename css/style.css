@@ -96,7 +96,7 @@ body {
 
 .prettyLink{
 	text-decoration: none;
-	color:#D05050;
+	color:#303030;
 }
 
 .prettyLink:hover{
@@ -184,33 +184,33 @@ svg {
 
 
 	.us-point {
-		fill: #303030;	
+		fill: #D05050;	
 	}
 
 	.state-point {
-		fill: #D05050;
+		fill: #303030;
 	}
 
 	path.us-line {
-		stroke: #303030; stroke-width: 2; fill: none;
+		stroke: #D05050; stroke-width: 2; fill: none;
 	}
 
 	path.state-line {
-		stroke: #D05050; stroke-width: 2; fill: none; opacity: 0.05;
+		stroke: #303030; stroke-width: 2; fill: none; opacity: 0.05;
 	}
 	path.state-line.active {
-		stroke: #D05050; stroke-width: 2; fill: none; opacity: 1;
+		stroke: #303030; stroke-width: 2; fill: none; opacity: 1;
 	}
 
 	text.us-line-label {
 		alignment-baseline: middle;	
-		fill: #4D4D4D; stroke-width: 0.3;
+		fill: #D05050; stroke-width: 0.3;
 		font-size: 10; font-weight: 600;
 	}
 
 	text.state-line-label {
 		alignment-baseline: middle;	
-		fill: #D05050; stroke-width: 0.3;
+		fill: #303030; stroke-width: 0.3;
 		font-size: 10; font-weight: 600;
 	}
 

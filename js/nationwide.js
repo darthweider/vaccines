@@ -236,7 +236,7 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 
 		return lineFunctions;
 	}
-	console.log(JSON.stringify(makeLineFunction()))
+	//console.log(JSON.stringify(makeLineFunction()))
 
 	var plotLine = function(region) {
 		var abbr = nameToAbbr(region);
@@ -247,7 +247,7 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 
 		d3.selectAll('path.' + abbr).remove();
 
-		var lineFunction = makeLineFunction().get(region);
+		var lineFunction = lineFunctions.get(region);
 
 		var line = graph.append("path")
 			.attr("d", lineFunction)
@@ -319,19 +319,6 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 
 		
 	plotAllLines();
-
-
-
-
-/**
-
-**/
-
-
-/**
-
-**/	
-
 
 
 	var drawMap = function(year) {
