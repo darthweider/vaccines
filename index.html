@@ -32,6 +32,18 @@
             font-size: 1.5em;
             color:#D05050;
         }
+
+        #lotsOfLittleMen{
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .man{
+            fill:gray;
+            display:inline-block;
+            margin-left:7px;
+            margin-right: 7px;
+        }
     </style>
 
 </head>
@@ -51,6 +63,24 @@
     
 </div>
 <div class="dividingLine"></div>
+<div id="lotsOfLittleMen">
+
+</div>
+<br/><br/>
+<script>
+var man = 'class="man" x="0px" y="0px" width="38px" height="38px" viewBox="5.0 -10.0 100.0 135.0" enable-background="new 0 0 100 100" xml:space="preserve"><circle cx="50" cy="11.705" r="11.705" /><path d="M66.789,57.198c2.449,0,4.055-2.856,3.569-6.347l-2.441-17.534c-0.486-3.491-3.768-6.347-7.292-6.347H39.374  c-3.524,0-6.806,2.856-7.292,6.347l-2.44,17.534c-0.486,3.491,1.12,6.347,3.569,6.347s4.667,2.876,4.929,6.391l2.242,30.021  c0.262,3.515,3.361,6.391,6.885,6.391h5.467c3.524,0,6.623-2.876,6.885-6.391l2.24-30.021C62.121,60.074,64.34,57.198,66.789,57.198  z"/></svg>';
+
+var manString = "";
+for (var i=0;i<(15*6);i++){
+    manString += '<svg id="man' +i + '"';
+    if(i>86){manString+="style='opacity:0;'";}
+    manString += man;
+    if(i%15 == 14){manString+="</br>";}
+    
+}
+$("#lotsOfLittleMen")[0].innerHTML = manString;
+
+</script>
 <div id="buttonList" class="mapOptions">
 <button type="button" class="button">1980</button>
 <button type="button" class="button">1990</button>
@@ -228,14 +258,13 @@ var timerUpdate;
 var selectedYear = 2015;
 setUpDeathText(selectedYear);
 
-//.css("background", "#d05050");
+
 /*how many people have died of measles today?*/
 function deathCounter(deathHour){
     var deathSec = deathHour/3600;
     var d = new Date(), e = new Date(d);
     var ms = e - d.setHours(0,0,0,0);
     var s = ms/1000.;
-    console.log(s + " seconds");
     var deaths = (Math.round(100*s*deathSec)/100).toString(); //hack to get 2 dec places
     return deaths;
 }
@@ -266,8 +295,6 @@ function setUpDeathText(yrVal){
     selectedYear = yrVal;
 
     timerUpdate =setInterval(function(){
-        console.log(selectedYear);
-        //console.log("upd8");
         var deadPeople = deathCounter(deathHour);
         $("#theTimerSpan")[0].innerHTML = deadPeople;
     },1000);
@@ -283,5 +310,9 @@ $(".button").click(function(){
     selectedYear *= 0;
     selectedYear += Number(yrVal);
 });
+
+
+var men = d3.selectAll(".man")[0];
+
 
 </script>
