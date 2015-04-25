@@ -40,11 +40,10 @@ var SVG_WIDTH = 900,
 	LABEL_PADDING = 25, //between axis labels and axis line
 	TOP_PADDING = 15,
 	BOTTOM_PADDING = 40;
-	BETWEEN_PADDING = 40;
 
 var GRAPH_HEIGHT = 0.3 * SVG_HEIGHT,
 	graph_width = SVG_WIDTH - LEFT_PADDING - RIGHT_PADDING,
-    MAP_HEIGHT = SVG_HEIGHT - GRAPH_HEIGHT - BOTTOM_PADDING - TOP_PADDING - BETWEEN_PADDING;
+    MAP_HEIGHT = SVG_HEIGHT - GRAPH_HEIGHT - BOTTOM_PADDING - TOP_PADDING;
 
 var originX = LEFT_PADDING,
 	originY = SVG_HEIGHT - BOTTOM_PADDING,
@@ -82,28 +81,15 @@ var yAxis = graph.append("line")
 var xScale = d3.scale.ordinal()
 	.domain(years).rangeBands([originX, endX], 0.3)
 
-var xAxisLabels = graph.selectAll("g.xlabel")
+var xAxisLabels = graph.selectAll("text.xlabel")
 	.data(years).enter()
+	.append("text")
+	.classed("xlabel", true)
+	.attr("x", function(year) { return xScale(year); })
+	.attr("y", originY + LABEL_PADDING)
+	.classed("active", function(year) { return year == selectedYear })
+	.text(function(year) { return year; });
 
-var updateXAxisLabels = function () {
-	//labels below
-	xAxisLabels
-		.append("text")
-		.classed("xlabel", true)
-		.attr("x", function(year) { return xScale(year); })
-		.attr("y", originY + LABEL_PADDING)
-		.classed("active", function(year) { return year == selectedYear })
-		.text(function(year) { return year; });
-	//labels above
-	xAxisLabels
-		.append("text")
-		.classed("xlabel", true)
-		.attr("x", function(year) { return xScale(year); })
-		.attr("y", endY - LABEL_PADDING)
-		.classed("active", function(year) { return year == selectedYear })
-		.text(function(year) { return year; });
-	}
-updateXAxisLabels();
 
 
 
@@ -496,7 +482,7 @@ updateXAxisLabels();
 				plotLine(fipsToName(state.id));
 			})
 
-			//Listener for x axis labels. Change selected year when label clicked.
+				//Listener for x axis labels. Change selected year when label clicked.
 			d3.selectAll('text.xlabel').on('click', function() {
 				//do nothing if same year
 				var thisYear = this.innerHTML;
@@ -508,7 +494,6 @@ updateXAxisLabels();
 
 					selectedYear = thisYear;
 					updateBubbles(thisYear);
-					updateXAxisLabels();
 				}
 			})
 
