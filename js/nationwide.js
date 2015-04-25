@@ -18,6 +18,7 @@ var makeLookup = function(dataset) {
 
 d3.csv("./data/mmr_only.csv", function(d) {
 	var mmrData = cleanData(d);
+//	console.log(mmrData);
 	data['MMR'] = {array: mmrData, lookup: makeLookup(mmrData)}
 	if (canInit) { init(); }	
 	else { canInit = true; }
@@ -31,24 +32,24 @@ d3.tsv("./data/us-pop.tsv", function(d) {
 })
 
 
-var SVG_WIDTH = 800,
-	SVG_HEIGHT = 500,
+var SVG_WIDTH = 900,
+	SVG_HEIGHT = 600,
 	LEFT_PADDING = 70, //between svg edge and y-axis line
 	RIGHT_PADDING = 50,
 	LABEL_PADDING = 25, //between axis labels and axis line
 	TOP_PADDING = 15,
-	BETWEEN_PADDING = 30;
+	BOTTOM_PADDING = 40;
 
-var GRAPH_HEIGHT = 0.2 * SVG_HEIGHT,
+var GRAPH_HEIGHT = 0.3 * SVG_HEIGHT,
 	graph_width = SVG_WIDTH - LEFT_PADDING - RIGHT_PADDING,
-    MAP_HEIGHT = SVG_HEIGHT - GRAPH_HEIGHT - BETWEEN_PADDING - TOP_PADDING;
+    MAP_HEIGHT = SVG_HEIGHT - GRAPH_HEIGHT - BOTTOM_PADDING - TOP_PADDING;
 
 var originX = LEFT_PADDING,
-	originY = TOP_PADDING + GRAPH_HEIGHT,
+	originY = SVG_HEIGHT - BOTTOM_PADDING,
 	endX = LEFT_PADDING + graph_width,
-	endY = TOP_PADDING;
+	endY = SVG_HEIGHT - GRAPH_HEIGHT - BOTTOM_PADDING;
 
-var mapCenterY = SVG_HEIGHT - (MAP_HEIGHT/2),
+var mapCenterY = MAP_HEIGHT/2,
 	mapCenterX = SVG_WIDTH/2;
 
 
@@ -59,7 +60,10 @@ var nationalSvg = d3.select("#national")
 	.attr("width", SVG_WIDTH)
 	.attr("height", SVG_HEIGHT);
 
+var map = nationalSvg.append("g");
 var graph = nationalSvg.append("g");
+
+
 
 var xAxis = graph.append("line")
 	.attr('x1', originX).attr('y1', originY)
@@ -203,9 +207,9 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 
 
 
-	var map = nationalSvg.append("g");
+
 	// albersUsa projection
-	var projection = d3.geo.albersUsa().translate([mapCenterX, mapCenterY]).scale(2*MAP_HEIGHT);
+	var projection = d3.geo.albersUsa().translate([mapCenterX, mapCenterY]).scale(2.4*MAP_HEIGHT);
 	var path = d3.geo.path().projection(projection);
 
 
@@ -220,7 +224,10 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 			.y(function(d) { return yScale(d[1]) })
 			.interpolate("linear");
 
-		statesAbbr.forEach(function(region) {
+
+		statesAbbr.forEach(function(regionArray) {
+			var region = regionArray[0];
+
 			var vaxRates = vaxRatesByYear(region, selectedVaccine);
 
 
@@ -239,10 +246,14 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 
 		return lineFunctions;
 	}
+//	console.log(JSON.stringify(makeLineFunction()))
 
 	var plotLine = function(region) {
 		var abbr = nameToAbbr(region);
 		var isNational = region == 'US National';
+		var isSelectedFips = nameToFips(region) == selectedFips;
+		var className = 'state';
+		if (isNational) { className = 'us' }
 
 		d3.selectAll('path.' + abbr).remove();
 
@@ -254,7 +265,24 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 			.classed('us-line', isNational)
 			.classed('state-line', !isNational)
 			.classed('active', nameToFips(region) == selectedFips && !isNational)
-	}
+
+/** Show points on the graph
+		if (isNational || isSelectedFips) {
+			var firstLastYears = [years[0], years[years.length-1]]
+			var firstLastRates = [findVaxRate(region, firstLastYears[0], selectedVaccine),
+								  findVaxRate(region, firstLastYears[1], selectedVaccine)] 
+
+			graph.selectAll("circle." + className + "-point").remove()
+			var points = graph.selectAll("circle." + className + "-point")
+				.data(firstLastRates).enter()
+				.append("circle")
+				.attr("cx", function(d,i) { return xScale(firstLastYears[i]) })
+				.attr("cy", function(d) { return yScale(d) })
+				.attr("values", function(d,i) { return firstLastYears[i] })
+				.attr("r", 2)
+				.classed(className + "-point", true)
+		}
+**/	}
 
 
 	var plotAllLines = function() {
@@ -306,15 +334,7 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 
 
 /**
-		graph.selectAll("circle." + className + "-point").remove()
-		var points = graph.selectAll("circle." + className + "-point")
-			.data(vaxRates).enter()
-			.append("circle")
-			.attr("cx", function(d,i) { return xScale(years[i]) })
-			.attr("cy", function(d) { return yScale(d) })
-			.attr("values", function(d,i) { return years[i] })
-			.attr("r", 3)
-			.classed(className + "-point", true)
+
 **/
 
 
@@ -340,7 +360,7 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 			/** Radius scale based on population **/
 			var radiusScale = d3.scale.sqrt()
 				.domain([minVaxEver('Population'), maxVaxEver('Population')])
-				.range([8, 20]);
+				.range([8, 30]);
 
 			var radiusForFips = function(fips, year) {
 				var population = findVaxRate(fipsToName(fips), year, 'Population');
