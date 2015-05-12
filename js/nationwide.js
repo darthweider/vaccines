@@ -238,6 +238,7 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 	}
 	//console.log(JSON.stringify(makeLineFunction()))
 
+	//plot a single line for a given region
 	var plotLine = function(region) {
 		var abbr = nameToAbbr(region);
 		var isNational = region == 'US National';
@@ -251,7 +252,7 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 
 		var line = graph.append("path")
 			.attr("d", lineFunction)
-			.attr("class", function(d) { if (!isNational) return nameToAbbr(region) })
+			.attr("id", function(d) { if (!isNational) return nameToAbbr(region) })
 			.classed('us-line', isNational)
 			.classed('state-line', !isNational)
 			.classed('active', nameToFips(region) == selectedFips && !isNational)
@@ -376,7 +377,7 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 				.classed('node', true)
 
 			var bubble = node.append("circle")
-				.attr('class', function(state) { return fipsToAbbr(state.id) })
+				.attr('id', function(state) { return fipsToAbbr(state.id) })
 				.classed("bubble", true)
 				.classed("active", function(state) { return state.id == selectedFips })
 				//save information into topojson feature properties
@@ -391,7 +392,7 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 
 
 			var bubbleLabel = node.append("text")
-				.attr('class', function(state) { return fipsToAbbr(state.id) })
+				.attr('id', function(state) { return fipsToAbbr(state.id) })
 				.classed("bubble-label", true)
 				.classed("active", function(state) { return state.id == selectedFips })
 				.text(function(state) { return nameToAbbr(fipsToName(state.id)); })		
@@ -468,18 +469,31 @@ var xAxisLabels = graph.selectAll("text.xlabel")
 
 
 
+			//select a state corresponding to abbr the active state
+			var makeActive = function(abbr) {
+				var fips = abbrToFips(abbr);
+
+				if (fips != selectedFips) {
+					d3.selectAll('.bubble.active, .bubble-label.active, .state-line.active')
+						.classed("active", false);
+					
+					d3.selectAll('#' + abbr)
+						.classed("active", true);
+
+					selectedFips = fips;
+
+					label(fipsToName(fips), 'state-line-label');
+				}
+			}
+
 			//listener: check if bubbles have been clicked
 			map.selectAll('.node').on('click', function(state) {
-				d3.selectAll('.bubble.active, .bubble-label.active, .state-line.active')
-					.classed("active", false);
-				
-				d3.selectAll('.' + fipsToAbbr(state.id))
-					.classed("active", true);
+				makeActive(fipsToAbbr(state.id));
+			})
 
-				selectedFips = state.id;
-
-				label(fipsToName(state.id), 'state-line-label');
-				plotLine(fipsToName(state.id));
+			//listener: check if state lines have been clicked
+			graph.selectAll('.state-line').on('click', function() {
+				makeActive(this.id);
 			})
 
 				//Listener for x axis labels. Change selected year when label clicked.

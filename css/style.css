@@ -202,6 +202,10 @@ svg {
 		stroke: #303030; stroke-width: 2; fill: none; opacity: 1;
 	}
 
+	path.state-line:hover {
+		cursor: pointer;
+	}
+
 	text.us-line-label {
 		alignment-baseline: middle;	
 		fill: #D05050; stroke-width: 0.3;

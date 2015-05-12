@@ -110,3 +110,13 @@ var abbrToName = function(abbr) {
 	})
 	return name;	
 }
+
+var abbrToFips = function(abbr) {
+	var fips = '';
+	statesAbbr.forEach(function(state) {
+		if (state[1] == abbr) {
+			fips = state[3];
+		}
+	})
+	return fips;
+}
