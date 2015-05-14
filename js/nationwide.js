@@ -188,66 +188,6 @@ var init = function() {
 
 
 
-			var updateBubbles = function(selection) {
-				selection
-					.classed('active', function(state) { return state.id == selectedFips})
-					.transition()
-					.attr("r", function(state) { return state.properties.r })
-					.attr("fill", function(state) { 
-						if (state.id == selectedFips) {
-							return 'black'
-						}
-						return colorForFips(state.id, selectedYear) })
-			}
-
-			var updateAllBubbles = function() {
-				updateBubbles(map.selectAll('.bubble'))
-			}
-
-		 	var updateBubbleLabels = function(selection) {
-		 		selection
-					.classed('active', function(state) { return state.id == selectedFips})		 			
-					.transition()
-					.attr("fill", function(state) {
-						if (state.id == selectedFips) { return 'white' }
-						return 'black'
-					})
-		 	}
-
- 	var updateStateLines = function(selection) {
- 		selection		 			
-			.transition()
-			.style("opacity", function() {
-				if (abbrToFips(this.id) == selectedFips) { 
-					return 1 }
-				return 0.05						
-			})
-		selection
-			.classed('active', function() { return abbrToFips(this.id) == selectedFips})
- 	}
-
-			//change the active state to abbr
-			var updateActive = function(abbr) {
-				var fips = abbrToFips(abbr);
-
-				if (fips != selectedFips) {
-					selectedFips = fips;
-					//de-activate previously active and activate currently active
-					updateBubbles(d3.selectAll('.bubble.active, .bubble#' + abbr))
-					updateBubbleLabels(d3.selectAll('.bubble-label.active, .bubble-label#' + abbr))				
-					updateStateLines(d3.selectAll('.state-line.active, .state-line#' + abbr))
-
-
-
-					graph.selectAll(".state-line-label").remove()
-					label(fipsToName(fips));
-				}
-			}
-
-
-
-
-
 	// albersUsa projection
 	var projection = d3.geo.albersUsa().translate([mapCenterX, mapCenterY]).scale(2*MAP_HEIGHT);
 	var geoPath = d3.geo.path().projection(projection);
@@ -374,13 +314,8 @@ var init = function() {
 			positionBubbles();
 
 
-
-
-
 		 	updateAllBubbles()
 		 	updateBubbleLabels(map.selectAll('.bubble-label'))
-
-
 
 
 			//listener: check if bubbles have been clicked
@@ -408,12 +343,9 @@ var init = function() {
 				}
 			})
 
-
-
-
 		})
 	}
-	drawMap(selectedYear);
+
 
 	/** Add to map of line functions **/
 	var makeLineFunctions = function() {
@@ -475,9 +407,6 @@ var init = function() {
 		}
 **/	}
 
-
-
-
 	var plotAllLines = function() {
 		statesAbbr.forEach(function(regionArray) {
 
@@ -523,10 +452,68 @@ var init = function() {
 			.text(region)
 	}
 
-		
+
+/**********UPDATE VALUES*******************/
+
+	var updateBubbles = function(selection) {
+		selection
+			.classed('active', function(state) { return state.id == selectedFips})
+			.transition()
+			.attr("r", function(state) { return state.properties.r })
+			.attr("fill", function(state) { 
+				if (state.id == selectedFips) {
+					return 'black'
+				}
+				return colorForFips(state.id, selectedYear) })
+	}
+
+	var updateAllBubbles = function() {
+		updateBubbles(map.selectAll('.bubble'))
+	}
+
+ 	var updateBubbleLabels = function(selection) {
+ 		selection
+			.classed('active', function(state) { return state.id == selectedFips})		 			
+			.transition()
+			.attr("fill", function(state) {
+				if (state.id == selectedFips) { return 'white' }
+				return 'black'
+			})
+ 	}
+
+	var updateStateLines = function(selection) {
+		selection		 			
+		.transition()
+		.style("opacity", function() {
+			if (abbrToFips(this.id) == selectedFips) { 
+				return 1 }
+			return 0.05						
+		})
+	selection
+		.classed('active', function() { return abbrToFips(this.id) == selectedFips})
+	}
+
+	//change the active state to abbr
+	var updateActive = function(abbr) {
+		var fips = abbrToFips(abbr);
+
+		if (fips != selectedFips) {
+			selectedFips = fips;
+			//de-activate previously active and activate currently active
+			updateBubbles(d3.selectAll('.bubble.active, .bubble#' + abbr))
+			updateBubbleLabels(d3.selectAll('.bubble-label.active, .bubble-label#' + abbr))				
+			updateStateLines(d3.selectAll('.state-line.active, .state-line#' + abbr))
+
+
+
+			graph.selectAll(".state-line-label").remove()
+			label(fipsToName(fips));
+		}
+	}
+
+
+	drawMap(selectedYear);
 	plotAllLines();
-
-
 
 
 }
